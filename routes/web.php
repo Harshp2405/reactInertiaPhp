@@ -14,7 +14,9 @@ GET|HEAD        Products/{Product}/edit .................. Products.edit › Pro
 
 
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TodolistController;
 use Illuminate\Support\Facades\Mail;
@@ -50,7 +52,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         /** Product Routes */
         Route::resource('Cart', CartController::class)->parameters(['Cart' => 'cart']);
-        Route::get('/Checkout', [CartController::class ,'sendMail'])->name('sendMail');
+    // Route::get('/Checkout', [CartController::class ,'sendMail'])->name('sendMail');
+    Route::get('/Checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/Checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+    Route::resource('orders', OrderController::class);
 
 
 });

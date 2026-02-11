@@ -35,7 +35,7 @@ export default function Index({ Data, User, categories }) {
 
     const [items, setItems] = useState(initialData);
 
-    console.log(items, '---------------------Data----------------');
+    // console.log(items, '---------------------Data----------------');
     // console.log(User, '---------------------Data----------------');
     const { processing } = useForm();
 
@@ -169,15 +169,17 @@ export default function Index({ Data, User, categories }) {
                         </div>
 
                         <div className="grid grid-cols-6">
-                            {items.map((dt) => (
-                                <SortableProductCard
-                                    key={dt.id}
-                                    dt={dt}
-                                    processing={processing}
-                                    onDelete={handleDelete}
-                                    User={User}
-                                />
-                            ))}
+                            {items
+                                .filter((item) => item.price !== '0.00')
+                                .map((dt) => (
+                                    <SortableProductCard
+                                        key={dt.id}
+                                        dt={dt}
+                                        processing={processing}
+                                        onDelete={handleDelete}
+                                        User={User}
+                                    />
+                                ))}
                         </div>
                     </SortableContext>
                 </DndContext>
