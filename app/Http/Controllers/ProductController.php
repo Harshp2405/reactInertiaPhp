@@ -51,17 +51,51 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        // $data = Product::all()->load('images', 'parent', 'children');
-        $data = Product::all()->load('images');
-        $user = Auth::user();
 
-        // return Inertia::render("Products/Index", compact('data'));
-        return Inertia::render("Products/Index", ['Data' => $data, "User" => $user]);
-        // return Inertia::render('Products/Index', [
-        //     'products' => $data,
-        // ]);
+    // public function index()
+    // {
+    //     // $data = Product::all()->load('images', 'parent', 'children');
+    //     $data = Product::all()->load('images');
+    //     $user = Auth::user();
+
+    //     // return Inertia::render("Products/Index", compact('data'));
+    //     return Inertia::render("Products/Index", ['Data' => $data, "User" => $user]);
+        
+    // }
+    public function index(Request $request)
+    {
+        $query = Product::query()->with('images', 'parent', 'children');
+
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->category) {
+            $query->where(function ($q) use ($request) {
+                $q->where('parent_id', $request->category)
+                    ->orWhere('id', $request->category);
+            });
+        }
+
+        if ($request->min_price) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->max_price) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        $categories = Product::where('parent_id', null)->get();
+
+        $products = $query->get();
+
+        return Inertia::render('Products/Index', [
+            'Data' => $products,
+            'filters' => $request->only(['search', 'category', 'min_price', 'max_price']),
+            'categories' => $categories,
+            'User' => auth()->user(),
+        ]);
+        
     }
 
     public function getCategory()
@@ -240,12 +274,6 @@ class ProductController extends Controller
     }
     public function changeImage(Request $request, Product $product)
     {
-        // dd(
-        //     $request->method(),
-        //     $request->hasFile('image'),
-        //     $request->file('image')
-        // );
-
         $request->validate([
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
@@ -292,9 +320,7 @@ class ProductController extends Controller
             ->with('message', 'Deleted');
     }
 
-
-
-
+// Send Mail
     public function sendMail(Request $request)
     {
         $product = Product::findOrFail($request->id);

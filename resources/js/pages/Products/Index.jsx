@@ -1,96 +1,3 @@
-// import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-// import {Button } from '../../components/ui/button'
-// import AppLayout from '@/layouts/app-layout';
-
-// const breadcrumbs = [
-//     {
-//         title: 'Products',
-//         href: '/Products',
-//     },
-// ];
-
-// export default function Index() {
-
-//     const { data, flash } = usePage().props;
-//     const { processing , delete:destory } = useForm()
-
-//     const handleDelete = (id) => {
-//         if (confirm('Are you sure to delete?')) {
-//             router.delete(`/Products/${id}`, {
-//                 onSuccess: () => {
-//                     console.log('Deleted successfully');
-//                 },
-//             });
-//         }
-//     };
-
-//     {
-//         console.log(flash);
-//     }
-
-//     return (
-//         <AppLayout breadcrumbs={breadcrumbs}>
-//             <Head title="Products" />
-//             <div className="m-4">
-//                 Product Pages <br></br>
-//                 <Button onClick={() => router.get('/Products/create')}>
-//                     Create Product
-//                 </Button>
-//             </div>
-
-//                 {data.length > 0 &&
-//                     data.map((dt) => (
-//                         <div
-//                             key={dt.id}
-//                             className="m-3 max-w-md rounded-xl border border-gray-700 bg-black/40 p-5 shadow-md transition hover:shadow-lg"
-//                         >
-//                             <div className="flex items-start justify-between gap-4">
-//                                 <h3 className="max-w-[75%]  text-lg font-semibold text-white">
-//                                     {dt.name}
-//                                 </h3>
-
-//                                 <span className="text-xs text-gray-400">
-//                                     #{dt.id}
-//                                 </span>
-//                             </div>
-
-//                             <p className="mt-2 line-clamp-2 text-sm text-gray-400">
-//                                 {dt.description || 'No description'}
-//                             </p>
-
-//                             <div className="mt-3 text-lg font-bold text-green-500">
-//                                 ₹ {dt.price}
-//                             </div>
-
-//                             <div className="mt-4 flex gap-2">
-//                                 <Link
-//                                     href={`/Products/${dt.id}/edit`}
-//                                     className="flex-1 rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
-//                                 >
-//                                     Edit
-//                                 </Link>
-
-//                                 <Link
-//                                     href={`/Products/${dt.id}`}
-//                                     className="flex-1 rounded-md bg-slate-600 px-3 py-1.5 text-center text-sm text-white hover:bg-slate-700"
-//                                 >
-//                                     Show
-//                                 </Link>
-
-//                                 <button
-//                                     disabled={processing}
-//                                     onClick={() => handleDelete(dt.id)}
-//                                     className="flex-1 rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700 disabled:opacity-50"
-//                                 >
-//                                     Delete
-//                                 </button>
-//                             </div>
-//                         </div>
-//                     ))}
-
-//         </AppLayout>
-//     );
-// }
 
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
@@ -112,15 +19,23 @@ import {
     arrayMove,
 } from '@dnd-kit/sortable';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const breadcrumbs = [{ title: 'Products', href: '/Products' }];
 
-export default function Index({ Data, User }) {
-    const { Data: initialData } = usePage().props;
+export default function Index({ Data, User, categories }) {
+    const { Data: initialData, filters: initialFilters = {} } = usePage().props;
+
+    const [filters, setFilters] = useState({
+        search: initialFilters?.search ?? '',
+        category: initialFilters?.category ?? '',
+        min_price: initialFilters?.min_price ?? '',
+        max_price: initialFilters?.max_price ?? '',
+    });
+
     const [items, setItems] = useState(initialData);
 
-    // console.log(items, '---------------------Data----------------');
+    console.log(items, '---------------------Data----------------');
     // console.log(User, '---------------------Data----------------');
     const { processing } = useForm();
 
@@ -153,14 +68,34 @@ export default function Index({ Data, User }) {
         }
     };
 
+    const handleFilterChange = (e) => {
+        const newFilters = {
+            ...filters,
+            [e.target.name]: e.target.value,
+        };
+
+        setFilters(newFilters);
+        const filtered = Object.fromEntries(
+            Object.entries(newFilters).filter(([_, v]) => v !== ''),
+        );
+        router.get('/Products', filtered, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    useEffect(() => {
+        setItems(initialData);
+    }, [initialData]);
+
+    // console.log(initialData,"===============================initialData==================================");
+
     return (
         <>
             <AppLayout breadcrumbs={breadcrumbs}>
                 {User.role === 1 ? (
                     //User Code
-                    <>
-                        {/* <h2>Welcome User {User.name}</h2> */}
-                    </>
+                    <>{/* <h2>Welcome User {User.name}</h2> */}</>
                 ) : (
                     //Admin Code
                     <>
@@ -185,6 +120,54 @@ export default function Index({ Data, User }) {
                         items={items.map((i) => i.id)}
                         strategy={verticalListSortingStrategy}
                     >
+                        <div className="mb-4 rounded p-4">
+                            <div className="grid grid-cols-4 gap-4">
+                                <input
+                                    type="text"
+                                    name="search"
+                                    placeholder="Search..."
+                                    value={filters.search ?? ''}
+                                    onChange={handleFilterChange}
+                                    className="rounded border p-2"
+                                />
+
+                                <select
+                                    name="category"
+                                    value={filters.category ?? ''}
+                                    onChange={handleFilterChange}
+                                    className="rounded border bg-slate-600 p-2"
+                                >
+                                    <option value="">All Categories</option>
+                                    {/* <option value="1">Electronics</option>
+                                    <option value="2">Mobiles</option>
+                                    <option value="3">Laptops</option> */}
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <input
+                                    type="number"
+                                    name="min_price"
+                                    placeholder="Min Price"
+                                    value={filters.min_price ?? ''}
+                                    onChange={handleFilterChange}
+                                    className="rounded border p-2"
+                                />
+
+                                <input
+                                    type="number"
+                                    name="max_price"
+                                    placeholder="Max Price"
+                                    value={filters.max_price ?? ''}
+                                    onChange={handleFilterChange}
+                                    className="rounded border p-2"
+                                />
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-6">
                             {items.map((dt) => (
                                 <SortableProductCard
