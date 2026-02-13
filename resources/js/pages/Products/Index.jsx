@@ -168,7 +168,7 @@ export default function Index({ Data, User, categories }) {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-6">
+                        <div className="grid grid-cols-4 gap-4">
                             {items
                                 .filter((item) => item.price !== '0.00')
                                 .map((dt) => (

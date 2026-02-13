@@ -72,6 +72,9 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
 
     Route::resource('admin/users', UserController::class);
     Route::resource('admin/products', AdminProductController::class);
+    Route::post('/admin/products/{id}/toggle-status', [AdminProductController::class, 'toggleActiveStatus'])->name('admin.products.toggleStatus');
+
+
     Route::resource('admin/orders', AdminOrderController::class);
 
 

@@ -64,7 +64,7 @@ class ProductController extends Controller
     // }
     public function index(Request $request)
     {
-        $query = Product::query()->with('images', 'parent', 'children');
+        $query = Product::query()->with('images', 'parent', 'children')->where('active', true);
 
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');

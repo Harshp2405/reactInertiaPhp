@@ -155,9 +155,6 @@ export default function Dashboard({stats}) {
 
                 <Chart
                     stats={stats}
-                    SalesByDate={stats.SalesByDate.map(
-                        (data) => data.date.split('-')[2],
-                    )}
                 />
             </div>
         </AppLayout>

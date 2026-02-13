@@ -61,6 +61,7 @@ class AdminDashboard extends Controller
             'TodayOrder' => $TodayOrder,
             'SalesByDate'=> $SalesByDate,
             'SalesbyMonth' => $SalesByMonth,
+            
         ];
 
 

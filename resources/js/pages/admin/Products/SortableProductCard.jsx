@@ -10,11 +10,12 @@ import {
     CardHeader,
     CardTitle,
 } from '../../../components/ui/card.tsx';
+import { useState } from 'react';
 
 export default function SortableProductCard({ dt, processing, onDelete ,User }) {
 
-    // console.log(User, '---------------------User----------------');
-
+    console.log(dt, '---------------------User----------------');
+    const [isSelected, setIsSelected] = useState(dt.active);
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: dt.id });
 
@@ -26,41 +27,24 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
     const { data, setData, post } = useForm({
         user_id:User.id,
         product_id: dt.id,
-        quantity: 1,
-        price: Number(dt.price),
-        total: Number(dt.price),
+        Active:isSelected
     });
 
-    const increment = () => {
-        if (data.quantity >= 15) return;
-
-        const qty = data.quantity + 1;
-        setData({
-            ...data,
-            quantity: qty,
-            total: qty * data.price,
-        });
-    };
-
-    const decrement = () => {
-        if (data.quantity <= 1) return;
-
-        const qty = data.quantity - 1;
-        setData({
-            ...data,
-            quantity: qty,
-            total: qty * data.price,
-        });
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/Cart', {
-            product_id: data.product_id,
-            quantity: data.quantity,
+        setData({
+            ...data,
+            active: !isSelected, // Toggle the active status
         });
-        // console.log("Add to cart")
 
+        // Send request to toggle the active status
+        post(`/admin/products/${dt.id}/toggle-status`, {
+            onSuccess: () => {
+                setIsSelected(!isSelected); // Update the local state to match the toggled status
+            },
+        });
+        console.log(data)
     };
 
     const defaultImage = dt.default_image
@@ -116,31 +100,8 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
             {/* Content */}
             <CardContent>
                 <p className="text-lg font-semibold text-green-500">
-                    ₹ {data.price}
+                    ₹ {Number(dt.price)}
                 </p>
-
-                <div className="my-1.5 mt-2 flex items-center gap-3">
-                    <Button
-                        size="xs"
-                        onClick={decrement}
-                        disabled={data.quantity <= 1}
-                    >
-                        -
-                    </Button>
-
-                    <span className="text-lg text-white">{data.quantity}</span>
-
-                    <Button
-                        size="xs"
-                        onClick={increment}
-                        disabled={data.quantity >= 15}
-                    >
-                        +
-                    </Button>
-                    <p className="mt-2 text-sm text-gray-400">
-                        Total: ₹ {data.total}
-                    </p>
-                </div>
             </CardContent>
 
             {/* Footer */}
@@ -172,14 +133,17 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
                     Show
                 </Link>
                 {/* Add to cart */}
-                {/* <Button
-                    type="submit"
+                <Button
                     disabled={processing}
                     onClick={handleSubmit}
-                    className="bg-green-600 hover:bg-green-700"
+                    className={`${
+                        isSelected
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-red-600 hover:bg-red-700'
+                    }`}
                 >
-                    Add To Cart
-                </Button> */}
+                    {isSelected ? 'Active' : 'Inactive'}
+                </Button>
             </CardFooter>
         </Card>
     );

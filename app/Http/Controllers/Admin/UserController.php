@@ -27,7 +27,6 @@ class UserController extends Controller
     public function index()
     {
         $users = User::where('role', '!=', 0)
-            ->latest()
             ->paginate(10);
 
         return Inertia::render('admin/Users/Index', [
@@ -60,9 +59,6 @@ class UserController extends Controller
         $user->load([
             'orders.items.product'
         ]);
-
-        
-
         
         return Inertia::render('admin/Users/SingleDetails', [
             'user' => $user,
@@ -92,7 +88,11 @@ class UserController extends Controller
     {
         $user->delete();
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
+        return Inertia::render('admin/Users/Index', [
+            'users' => User::where('role', '!=', 0)
+                ->paginate(10),
+        ])->with('success', 'User deleted successfully.');
+        // return redirect()->route('admin.users.index')
+        //     ->with('success', 'User deleted successfully.');
     }
 }

@@ -290,4 +290,19 @@ class AdminProductController extends Controller
         $product->load('images');
         return inertia('admin/products/Imageedit', compact('product'));
     }
+
+    public function toggleActiveStatus(Request $request, $id)
+    {
+        // Find the product by ID
+        $product = Product::findOrFail($id);
+
+        // Toggle the active status
+        $product->active = !$product->active;
+
+        // Save the updated product
+        $product->save();
+
+        // Return a response, in this case, redirect back
+        return redirect()->route('admin.products.index')->with('message', 'Product status updated successfully.');
+    }
 }

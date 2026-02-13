@@ -24,7 +24,8 @@ class Product extends Model
         'description',
         'parent_id',
         'is_parent',
-        'default_image'
+        'default_image',
+        'active',
     ] ;
 
     public function images()

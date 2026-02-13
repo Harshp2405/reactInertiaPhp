@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Inertia } from '@inertiajs/inertia';
 import AppLayout from '@/layouts/app-layout';
 
@@ -8,9 +8,15 @@ export default function Index() {
 
     const handleDelete = (id) => {
         if (confirm('Are you sure you want to delete this user?')) {
-            console.log(`admin/users/${id}`);
+            router.delete(`/admin/users/${id}`, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log('User deleted');
+                },
+            });
         }
     };
+    
 
     return (
         <AppLayout>
