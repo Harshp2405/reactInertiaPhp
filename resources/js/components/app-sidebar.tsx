@@ -2,6 +2,7 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     Folder,
+    LayoutGrid,
     ListOrderedIcon,
     ShoppingBasketIcon,
     ShoppingCartIcon,
@@ -68,6 +69,11 @@ const adminNavItems: NavItem[] = [
     //     href: dashboard(),
     //     icon: LayoutGrid,
     // },
+    {
+        title: 'Dashboard',
+        href: '/admin/dashboard',
+        icon: LayoutGrid,
+    },
     {
         title: 'Product',
         href: '/admin/products',

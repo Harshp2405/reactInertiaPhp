@@ -59,7 +59,7 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
             product_id: data.product_id,
             quantity: data.quantity,
         });
-        console.log("Add to cart")
+        // console.log("Add to cart")
 
     };
 
@@ -172,14 +172,14 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
                     Show
                 </Link>
                 {/* Add to cart */}
-                <Button
+                {/* <Button
                     type="submit"
                     disabled={processing}
                     onClick={handleSubmit}
                     className="bg-green-600 hover:bg-green-700"
                 >
                     Add To Cart
-                </Button>
+                </Button> */}
             </CardFooter>
         </Card>
     );

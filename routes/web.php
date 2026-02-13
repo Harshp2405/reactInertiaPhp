@@ -12,6 +12,7 @@ GET|HEAD        Products/{Product}/edit .................. Products.edit › Pro
 
 */
 
+use App\Http\Controllers\Admin\AdminDashboard;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\UserController;
@@ -67,9 +68,7 @@ Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
 
 Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(function () {
 
-    Route::get('admin/dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('admin.dashboard');
+    Route::get('admin/dashboard', [AdminDashboard::class, 'dashBoardData'])->name('dashBoardData');
 
     Route::resource('admin/users', UserController::class);
     Route::resource('admin/products', AdminProductController::class);
