@@ -1,67 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Mail\ProductCreated;
-use App\Models\Images;
-use Illuminate\Support\Facades\Mail;
 use App\Models\Product;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
-/*
-
-    
-    Summary of addImages
-     Multiple Images
-    
-    public function addImages(Request $request, Product $product)
-    {
-        $request->validate([
-            'images' => 'required|array|max:5',
-            'images.*' => 'image|max:2048',
-        ]);    
-        foreach ($request->file('images') as $img) {
-            $path = $img->store("products/{$product->id}", 'public');    
-            $product->images()->create([
-                'image' => $path,
-            ]);
-        }    
-        return back()->with('message', 'Images added');
-    }
-
-
-
-GET|HEAD        Products ............................... Products.index › ProductController@index
-POST            Products ............................... Products.store › ProductController@store  
-GET|HEAD        Products/create ...................... Products.create › ProductController@create  
-GET|HEAD        Products/{Product} ....................... Products.show › ProductController@show  
-PUT|PATCH       Products/{Product} ................... Products.update › ProductController@update  
-DELETE          Products/{Product} ................. Products.destroy › ProductController@destroy  
-GET|HEAD        Products/{Product}/edit .................. Products.edit › ProductController@edit 
-
-*/
-
-
-class ProductController extends Controller
+class AdminProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-
-    // public function index()
-    // {
-    //     // $data = Product::all()->load('images', 'parent', 'children');
-    //     $data = Product::all()->load('images');
-    //     $user = Auth::user();
-
-    //     // return Inertia::render("Products/Index", compact('data'));
-    //     return Inertia::render("Products/Index", ['Data' => $data, "User" => $user]);
-        
-    // }
     public function index(Request $request)
     {
         $query = Product::query()->with('images', 'parent', 'children');
@@ -85,19 +39,20 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
-        $categories = Product::where('parent_id', null)->get();
-
         $products = $query->get();
+        $categories = Product::whereNull('parent_id')->get();
 
-        return Inertia::render('Products/Index', [
+        return inertia('admin/Products/Index', [
             'Data' => $products,
-            'filters' => $request->only(['search', 'category', 'min_price', 'max_price']),
             'categories' => $categories,
+            'filters' => $request->only(['search', 'category', 'min_price', 'max_price']),
             'User' => auth()->user(),
         ]);
-        
     }
 
+/**
+ * Get categories with their children for dropdowns or filters.
+ */
     public function getCategory()
     {
         $categories = Product::with('children')
@@ -112,12 +67,9 @@ class ProductController extends Controller
      */
     public function create()
     {
-        // $parents = Product::where('is_parent', true)->get();
-        // return Inertia::render("Products/Create");
-
         $parents = Product::all(['id', 'name']);
 
-        return Inertia::render("Products/Create", [
+        return Inertia::render("admin/Products/Create", [
             'categories' => $parents,
         ]);
     }
@@ -148,7 +100,15 @@ class ProductController extends Controller
 
             Mail::to(auth()->user()->email)->send(new ProductCreated($product));
 
-            $data['default_image'] = $request->file('default_image')->store("products/{$product->id}/thumbnail/", 'public');
+
+            if ($request->hasFile('default_image')) {
+                $path = $request->file('default_image')
+                    ->store("products/{$product->id}/thumbnail/", 'public');
+
+                $product->update([
+                    'default_image' => $path,
+                ]);
+            }
 
             if ($product->parent_id) {
                 Product::where('id', $product->parent_id)->update([
@@ -167,7 +127,7 @@ class ProductController extends Controller
             }
             // dd($request->file('images'));
             return redirect()
-                ->route('Products.index')
+                ->route('admin.products.index')
                 ->with('message', 'Product created')->with('email', 'Email Sent success fully');
         } catch (QueryException $e) {
             return back()
@@ -182,7 +142,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product->load('images', 'parent', 'children');
-        return Inertia::render("Products/Singleproduct", compact('product'));
+        return Inertia::render("admin/Products/Singleproduct", compact('product'));
     }
 
     /**
@@ -195,15 +155,10 @@ class ProductController extends Controller
         $categories = Product::where('id', '!=', $product->id)
             ->get(['id', 'name']);
 
-        return Inertia::render('Products/Edit', [
+        return Inertia::render('admin/Products/Edit', [
             'product'    => $product,
             'categories' => $categories,
         ]);
-    }
-    public function editImage(Product $product)
-    {
-        $product->load('images');
-        return inertia('Products/Imageedit', compact('product'));
     }
 
     /**
@@ -237,7 +192,7 @@ class ProductController extends Controller
                 ->update(['is_parent' => true]);
         }
 
-//Defaul Image
+        //Defaul Image
         if ($request->hasFile('default_image')) {
 
             // delete old default image if exists
@@ -252,7 +207,7 @@ class ProductController extends Controller
                 'default_image' => $path,
             ]);
         }
-//Array of multiple image
+        //Array of multiple image
         if ($request->hasFile('images')) {
 
             foreach ($product->images as $img) {
@@ -269,8 +224,41 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('Products.index')->with('message', 'Edited');
+        return redirect()->route('admin.products.index')->with('message', 'Edited');
     }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Product $product)
+    {
+        if ($product->children()->exists()) {
+            return back()->withErrors([
+                'error' => 'Cannot delete product with child items',
+            ]);
+        }
+        foreach ($product->images as $img) {
+            Storage::disk('public')->delete($img->image);
+        }
+
+        $product->delete();
+
+        return redirect()
+            ->route('admin.products.index')
+            ->with('message', 'Deleted');
+    }
+
+    public function sendMail(Request $request)
+    {
+        $product = Product::findOrFail($request->id);
+
+        Mail::to('admin@example.com')->send(
+            new ProductCreated($product)
+        );
+
+        return back()->with('success', 'Mail sent');
+    }
+
     public function changeImage(Request $request, Product $product)
     {
         $request->validate([
@@ -297,37 +285,9 @@ class ProductController extends Controller
         return back()->with('message', 'Product updated');
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
+    public function editImage(Product $product)
     {
-        if ($product->children()->exists()) {
-            return back()->withErrors([
-                'error' => 'Cannot delete product with child items',
-            ]);
-        }
-        foreach ($product->images as $img) {
-            Storage::disk('public')->delete($img->image);
-        }
-
-        $product->delete();
-
-        return redirect()
-            ->route('Products.index')
-            ->with('message', 'Deleted');
-    }
-
-// Send Mail
-    public function sendMail(Request $request)
-    {
-        $product = Product::findOrFail($request->id);
-
-        Mail::to('admin@example.com')->send(
-            new ProductCreated($product)
-        );
-
-        return back()->with('success', 'Mail sent');
+        $product->load('images');
+        return inertia('admin/products/Imageedit', compact('product'));
     }
 }

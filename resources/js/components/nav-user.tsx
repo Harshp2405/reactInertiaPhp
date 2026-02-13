@@ -17,9 +17,15 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { SharedData } from '@/types';
 
 export function NavUser() {
+
+
     const { auth } = usePage<SharedData>().props;
     const { state } = useSidebar();
     const isMobile = useIsMobile();
+
+    // Don't render user menu if not logged in
+    if (!auth?.user) return null;
+
 
     return (
         <SidebarMenu>

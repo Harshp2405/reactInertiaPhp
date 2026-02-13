@@ -23,8 +23,6 @@ createInertiaApp({
         ), // Add to write jsx file
     setup({ el, App, props }) {
         const root = createRoot(el);
-
-
         root.render(
             <StrictMode>
                 <App {...props} />

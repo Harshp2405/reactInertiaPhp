@@ -12,7 +12,9 @@ GET|HEAD        Products/{Product}/edit .................. Products.edit › Pro
 
 */
 
-
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\UserController;
 
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
@@ -33,7 +35,7 @@ Route::get('/', function () {
 
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
 
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -60,6 +62,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 });
+
+/* Admin Routes */
+
+Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(function () {
+
+    Route::get('admin/dashboard', function () {
+        return Inertia::render('dashboard');
+    })->name('admin.dashboard');
+
+    Route::resource('admin/users', UserController::class);
+    Route::resource('admin/products', AdminProductController::class);
+    Route::resource('admin/orders', AdminOrderController::class);
+
+
+    Route::get('admin/products/categeory', [AdminProductController::class, "getCategeory"])->name('products.getCategeory');
+    Route::post('admin/p/{product}', [AdminProductController::class, "changeImage"])->name('products.changeImage');
+    Route::get('admin/products/{product}/editimage', [AdminProductController::class, "editImage"])->name('products.editImage');
+
+    Route::get('admin/Products/categeory', [AdminProductController::class, "getCategeory"])->name('products.getCategeory');
+}) ;
 
 
 

@@ -9,7 +9,7 @@ import {
     CardFooter,
     CardHeader,
     CardTitle,
-} from '../../components/ui/card.tsx';
+} from '../../../components/ui/card.tsx';
 
 export default function SortableProductCard({ dt, processing, onDelete ,User }) {
 
@@ -145,30 +145,28 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
 
             {/* Footer */}
             <CardFooter className="grid grid-rows-2 gap-2">
-                {User.role !== 1 && (
-                    <>
-                        {/* Update */}
-                        <Link
-                            href={`/Products/${dt.id}/edit`}
-                            className="rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
-                        >
-                            Update Data
-                        </Link>
-                        {/* Delete */}
-                        <button
-                            type="button"
-                            disabled={processing}
-                            onClick={() => onDelete(dt.id)}
-                            className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700"
-                        >
-                            Delete
-                        </button>
-                    </>
-                )}
+                <>
+                    {/* Update */}
+                    <Link
+                        href={`/admin/products/${dt.id}/edit`}
+                        className="rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
+                    >
+                        Update Data
+                    </Link>
+                    {/* Delete */}
+                    <button
+                        type="button"
+                        disabled={processing}
+                        onClick={() => onDelete(dt.id)}
+                        className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700"
+                    >
+                        Delete
+                    </button>
+                </>
 
                 {/* Show by id */}
                 <Link
-                    href={`/Products/${dt.id}`}
+                    href={`/admin/products/${dt.id}`}
                     className="rounded-md bg-slate-600 px-3 py-1.5 text-center text-sm text-white hover:bg-slate-700"
                 >
                     Show
@@ -185,36 +183,4 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
             </CardFooter>
         </Card>
     );
-}
-
-{
-    /* <CardFooter className="grid grid-rows-2 gap-2">
-    <Link
-        href={`/Products/${dt.id}/edit`}
-        className="flex-1 rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
-    >
-        Update Data
-    </Link>
-    <Link
-                    href={`/Products/${dt.id}/editimage`}
-                    className="flex-1 rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
-                >
-                    Update Image
-                </Link> 
-
-    <Link
-        href={`/Products/${dt.id}`}
-        className="flex-1 rounded-md bg-slate-600 px-3 py-1.5 text-center text-sm text-white hover:bg-slate-700"
-    >
-        Show
-    </Link>
-
-    <button
-        disabled={processing}
-        onClick={() => onDelete(dt.id)}
-        className="flex-1 rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700 disabled:opacity-50"
-    >
-        Delete
-    </button>
-</CardFooter>; */
 }

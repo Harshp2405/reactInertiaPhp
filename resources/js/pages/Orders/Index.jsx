@@ -31,7 +31,7 @@ export default function OrdersIndex({ orders }) {
                         {orders.map((order) => (
                             <div
                                 key={order.id}
-                                className="group flex items-center justify-between rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-950 to-gray-900 p-6 shadow-md transition-all duration-300 hover:border-gray-600 hover:shadow-xl"
+                                className="group flex items-center justify-between rounded-2xl border border-gray-800 bg-linear-to-br from-gray-950 to-gray-900 p-6 shadow-md transition-all duration-300 hover:border-gray-600 hover:shadow-xl"
                             >
                                 {/* Left Side */}
                                 <div>

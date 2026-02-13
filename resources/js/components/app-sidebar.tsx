@@ -1,5 +1,12 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, BookOpenTextIcon, Folder, LayoutGrid, ListOrderedIcon, MarsStrokeIcon, ShoppingBasketIcon, ShoppingCartIcon } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    BookOpen,
+    Folder,
+    ListOrderedIcon,
+    ShoppingBasketIcon,
+    ShoppingCartIcon,
+    UserIcon,
+} from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -17,7 +24,18 @@ import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+interface User {
+    name: string;
+    role: string;
+
+}
+// Define user object
+interface Auth {
+    user?: User | null;
+    name?: string | "" | null;
+}
+
+const userNavItem: NavItem[] = [
     // {
     //     title: 'Dashboard',
     //     href: dashboard(),
@@ -25,7 +43,7 @@ const mainNavItems: NavItem[] = [
     // },
     {
         title: 'Product',
-        href: "/Products",
+        href: '/Products',
         icon: ShoppingBasketIcon,
     },
     // {
@@ -35,12 +53,34 @@ const mainNavItems: NavItem[] = [
     // },
     {
         title: 'Cart',
-        href: "/Cart",
+        href: '/Cart',
         icon: ShoppingCartIcon,
     },
     {
         title: 'Orders',
-        href: "/orders",
+        href: '/orders',
+        icon: ListOrderedIcon,
+    },
+];
+const adminNavItems: NavItem[] = [
+    // {
+    //     title: 'Dashboard',
+    //     href: dashboard(),
+    //     icon: LayoutGrid,
+    // },
+    {
+        title: 'Product',
+        href: '/admin/products',
+        icon: ShoppingBasketIcon,
+    },
+    {
+        title: 'users',
+        href: '/admin/users',
+        icon: UserIcon,
+    },
+    {
+        title: 'Orders',
+        href: '/admin/orders',
         icon: ListOrderedIcon,
     },
 ];
@@ -59,28 +99,64 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<{ auth?: Auth }>().props;
+    // Optional chaining to avoid undefined errors
+    const userRole = auth?.user?.role;
     return (
-        <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
-                                <AppLogo />
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
+        <>
+            {userRole === (0 as unknown as string) ? (
+                <Sidebar collapsible="icon" variant="inset">
+                    {/* Sidebar header with logo */}
+                    <SidebarHeader>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton size="lg" asChild>
+                                    <Link href={dashboard()} prefetch>
+                                        <AppLogo />
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarHeader>
 
-            <SidebarContent>
-                <NavMain items={mainNavItems} />
-            </SidebarContent>
+                    {/* Sidebar main navigation */}
+                    <SidebarContent>
+                        <NavMain items={adminNavItems} />
+                    </SidebarContent>
 
-            <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
-                <NavUser />
-            </SidebarFooter>
-        </Sidebar>
+                    {/* Sidebar footer */}
+                    <SidebarFooter>
+                        <NavFooter items={footerNavItems} className="mt-auto" />
+                        <NavUser />
+                    </SidebarFooter>
+                </Sidebar>
+            ) : (
+                <Sidebar collapsible="icon" variant="inset">
+                    {/* Sidebar header with logo */}
+                    <SidebarHeader>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton size="lg" asChild>
+                                    <Link href={dashboard()} prefetch>
+                                        <AppLogo />
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarHeader>
+
+                    {/* Sidebar main navigation */}
+                    <SidebarContent>
+                        <NavMain items={userNavItem} />
+                    </SidebarContent>
+
+                    {/* Sidebar footer */}
+                    <SidebarFooter>
+                        <NavFooter items={footerNavItems} className="mt-auto" />
+                        <NavUser />
+                    </SidebarFooter>
+                </Sidebar>
+            )}
+        </>
     );
 }
