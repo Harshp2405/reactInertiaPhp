@@ -59,6 +59,16 @@ public function isCategory(): bool
     return $this->price == 0;
 }
 
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
 // Auto update is_parent flag
 protected static function booted()
 {
@@ -79,5 +89,17 @@ protected static function booted()
             }
         }
     });
+
+        static::creating(function ($product) {
+            if (auth()->check()) {
+                $product->created_by = auth()->id();
+            }
+        });
+
+        static::updating(function ($product) {
+            if (auth()->check()) {
+                $product->updated_by = auth()->id();
+            }
+        });
 }
 }

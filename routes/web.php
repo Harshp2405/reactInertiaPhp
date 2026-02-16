@@ -46,12 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Route::post('Pdc/send-product-mail', [ProductController::class, 'sendMail']);
         Route::get('Products/categeory', [ProductController::class , "getCategeory"])->name('getCategeory');
         Route::resource('Products', ProductController::class)->parameters(['Products' => 'product']);
-        Route::post('P/{product}', [ProductController::class , "changeImage"])->name('Products.changeImage');
-        Route::get('Products/{product}/editimage', [ProductController::class , "editImage"])->name('Products.editImage');
-        // Route::post('Products/{product}/images', [ProductController::class, 'addImages']);
         Route::resource('todo', TodolistController::class);
-        
-        
+
         
         /** Product Routes */
         Route::resource('Cart', CartController::class)->parameters(['Cart' => 'cart']);
@@ -85,7 +81,7 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
     Route::post('admin/p/{product}', [AdminProductController::class, "changeImage"])->name('products.changeImage');
     Route::get('admin/products/{product}/editimage', [AdminProductController::class, "editImage"])->name('products.editImage');
 
-    Route::get('admin/Products/categeory', [AdminProductController::class, "getCategeory"])->name('products.getCategeory');
+
 }) ;
 
 

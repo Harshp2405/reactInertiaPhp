@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Mail\ProductCreated;
+
 use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use League\Csv\Reader;
 use League\Csv\Statement;
+use App\Events\ProductCreated;
 use Inertia\Inertia;
 
 class AdminProductController extends Controller
@@ -99,8 +100,8 @@ class AdminProductController extends Controller
 
             $data['is_parent'] = false;
             $product = Product::create($data);
-
-            Mail::to(auth()->user()->email)->send(new ProductCreated($product));
+//Event Register
+            event(new ProductCreated($product));
 
 
             if ($request->hasFile('default_image')) {
@@ -180,7 +181,9 @@ class AdminProductController extends Controller
         ]);
         $oldParentId = $product->parent_id;
 
-        $product->update($data);
+        $d = ["user" => auth()->user()->id];
+
+        $product->update($data );
 
         if ($oldParentId && $oldParentId !== $product->parent_id) {
             $hasChildren = Product::where('parent_id', $oldParentId)->exists();
@@ -256,9 +259,9 @@ class AdminProductController extends Controller
     {
         $product = Product::findOrFail($request->id);
 
-        Mail::to('admin@example.com')->send(
-            new ProductCreated($product)
-        );
+        // Mail::to('admin@example.com')->send(
+        //     new ProductCreated($product)
+        // );
 
         return back()->with('success', 'Mail sent');
     }
