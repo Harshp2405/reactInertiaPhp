@@ -196,6 +196,7 @@ import { useEffect, useState } from 'react';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import SortableProductCard from './SortableProductCard';
+import { Button } from '../../../components/ui/button';
 
 const breadcrumbs = [{ title: 'Products', href: '/admin/products' }];
 
@@ -256,10 +257,83 @@ export default function Index({ Data, User, categories, processing }) {
         }));
     };
 
-    // Drag and delete handlers remain the same, applied on allItems or filteredItems accordingly
+    const { data, setData, post } = useForm({
+        csv_file: null,
+    });
+
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        setData('csv_file', file);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        post('/admin/products/upload-csv', {
+            forceFormData: true,
+            onSuccess: () => {
+                console.log('CSV uploaded successfully');
+                setData('csv_file', null);
+            },
+            onError: (errors) => {
+                console.log(errors);
+                alert('Error uploading CSV');
+            },
+        });
+        console.log(data, ' data ');
+    };
+
+        const handleDelete = (productId) => {
+            router.delete(`/admin/products/${productId}`, {
+                preserveScroll: true,
+                onSuccess: () => console.log('Deleted'),
+            });
+
+        };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <form onSubmit={handleSubmit} className="m-4">
+                <label
+                    htmlFor="csv-upload"
+                    className="mb-2 block text-sm text-gray-700"
+                >
+                    Upload CSV File
+                </label>
+                <input
+                    id="csv-upload"
+                    type="file"
+                    accept=".csv"
+                    onChange={handleFileChange}
+                    className="mb-4"
+                />
+                <div>
+                    {data.csv_file == null ? (
+                        <button
+                            type="submit"
+                            disabled
+                            className="rounded-md bg-red-500 px-4 py-2 text-white"
+                        >
+                            Choose File to upload
+                        </button>
+                    ) : (
+                        <button
+                            type="submit"
+                            className="rounded-md bg-blue-500 px-4 py-2 text-white"
+                        >
+                            Submit
+                        </button>
+                    )}
+                </div>
+            </form>
+
+            <div className="m-4">
+                <Button onClick={() => router.get('/admin/products/create')}>
+                    Create Product
+                </Button>
+            </div>
+
             {/* ...filters UI */}
             <div className="m-4 grid grid-cols-4 gap-4">
                 <input

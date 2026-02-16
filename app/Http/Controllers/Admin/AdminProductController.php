@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use League\Csv\Reader;
+use League\Csv\Statement;
 use Inertia\Inertia;
 
 class AdminProductController extends Controller
@@ -239,13 +241,15 @@ class AdminProductController extends Controller
         }
         foreach ($product->images as $img) {
             Storage::disk('public')->delete($img->image);
+            $img->delete();
         }
 
         $product->delete();
 
-        return redirect()
-            ->route('admin.products.index')
-            ->with('message', 'Deleted');
+        return response()->json(['message' => 'Product deleted successfully']);
+        // return Inertia::render("admin/Products/Index", [
+        //     'message' => 'Product deleted successfully',
+        // ]);
     }
 
     public function sendMail(Request $request)
@@ -304,5 +308,56 @@ class AdminProductController extends Controller
 
         // Return a response, in this case, redirect back
         return redirect()->route('admin.products.index')->with('message', 'Product status updated successfully.');
+    }
+
+    public function uploadCSV(Request $request)
+    {
+        // Validate the uploaded CSV file
+        $request->validate([
+            'csv_file' => 'required|mimes:csv,txt|max:2048',  // Adjust max size as needed
+        ]);
+
+        // Get the uploaded file
+        $file = $request->file('csv_file');
+
+
+
+        // Open the CSV file using League CSV package
+        $csv = Reader::createFromPath($file->getRealPath(), 'r');
+        $csv->setHeaderOffset(0); // Set the first row as the header
+
+        // Process the CSV file
+        $stmt = (new Statement());
+        $records = $stmt->process($csv);
+
+        // Insert products into the database
+        foreach ($records as $record) {
+            Product::create([
+                'name' => $record['name'] ?? null,
+                'price' => $record['price'] ?? 0,
+                'description' => $record['description'] ?? null,
+
+                'parent_id' => !empty($record['parent_id'])
+                    ? (int) $record['parent_id']
+                    : null,
+
+                'is_parent' => isset($record['is_parent'])
+                    ? (bool) $record['is_parent']
+                    : false,
+
+                'default_image' => !empty($record['default_image'])
+                    ? $record['default_image']
+                    : null,
+
+                'active' => isset($record['active'])
+                    ? (bool) $record['active']
+                    : true,
+            ]);
+        }
+
+        // Return a response once the products are uploaded successfully
+        return redirect()
+            ->route('admin.products.index')
+            ->with('message', 'Product created')->with('email', 'Email Sent success fully');
     }
 }

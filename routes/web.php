@@ -36,7 +36,7 @@ Route::get('/', function () {
 
 
 
-Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
         
         /** Product Routes */
         Route::resource('Cart', CartController::class)->parameters(['Cart' => 'cart']);
-    // Route::get('/Checkout', [CartController::class ,'sendMail'])->name('sendMail');
+    Route::get('/Checkout', [CartController::class ,'sendMail'])->name('sendMail');
     Route::get('/Checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/Checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
@@ -71,8 +71,11 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
     Route::get('admin/dashboard', [AdminDashboard::class, 'dashBoardData'])->name('dashBoardData');
 
     Route::resource('admin/users', UserController::class);
+    
     Route::resource('admin/products', AdminProductController::class);
+
     Route::post('/admin/products/{id}/toggle-status', [AdminProductController::class, 'toggleActiveStatus'])->name('admin.products.toggleStatus');
+    Route::post('/admin/products/upload-csv', [AdminProductController::class, 'uploadCSV'])->name('admin.products.uploadCSV');
 
 
     Route::resource('admin/orders', AdminOrderController::class);

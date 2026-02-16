@@ -14,7 +14,7 @@ import { useState } from 'react';
 
 export default function SortableProductCard({ dt, processing, onDelete ,User }) {
 
-    console.log(dt, '---------------------User----------------');
+    // console.log(dt, '---------------------User----------------');
     const [isSelected, setIsSelected] = useState(dt.active);
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: dt.id });
@@ -44,7 +44,7 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
                 setIsSelected(!isSelected); // Update the local state to match the toggled status
             },
         });
-        console.log(data)
+        
     };
 
     const defaultImage = dt.default_image
