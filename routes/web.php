@@ -35,15 +35,15 @@ Route::get('/', function () {
 })->name('home');
 
 
+Route::get('dashboard', function () {
+    return Inertia::render('dashboard');
+})->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
 
 /** Product Routes */
-        // Route::post('Pdc/send-product-mail', [ProductController::class, 'sendMail']);
+
         Route::get('Products/categeory', [ProductController::class , "getCategeory"])->name('getCategeory');
         Route::resource('Products', ProductController::class)->parameters(['Products' => 'product']);
         Route::resource('todo', TodolistController::class);
@@ -51,7 +51,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         /** Product Routes */
         Route::resource('Cart', CartController::class)->parameters(['Cart' => 'cart']);
-    Route::get('/Checkout', [CartController::class ,'sendMail'])->name('sendMail');
+
     Route::get('/Checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/Checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 

@@ -94,6 +94,8 @@ class AdminProductController extends Controller
 
                 'images' => 'nullable|array|max:5',
                 'images.*' => 'image|max:2048',
+
+                'quantity' => 'required|integer|min:0',
             ]);
             if ($request->hasFile('default_image')) {
             }
@@ -178,6 +180,8 @@ class AdminProductController extends Controller
             'default_image' => 'nullable|image|max:2048',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
+
+            'quantity' => 'required|integer|min:0',
         ]);
         $oldParentId = $product->parent_id;
 
@@ -255,16 +259,6 @@ class AdminProductController extends Controller
         // ]);
     }
 
-    public function sendMail(Request $request)
-    {
-        $product = Product::findOrFail($request->id);
-
-        // Mail::to('admin@example.com')->send(
-        //     new ProductCreated($product)
-        // );
-
-        return back()->with('success', 'Mail sent');
-    }
 
     public function changeImage(Request $request, Product $product)
     {

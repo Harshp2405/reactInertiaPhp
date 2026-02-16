@@ -26,6 +26,7 @@ export default function EditProduct({ product, categories = [] }) {
         description: product.description || '',
         parent_id: product.parent_id || '',
         images: [],
+        quantity: 0,
         default_image: null,
         _method: 'put',
     });
@@ -123,6 +124,23 @@ export default function EditProduct({ product, categories = [] }) {
                             {errors.price && (
                                 <p className="mt-1 text-sm text-red-500">
                                     {errors.price}
+                                </p>
+                            )}
+                        </div>
+                        {/* quantity */}
+                        <div>
+                            <Label className="text-gray-300">Quantity</Label>
+                            <Input
+                                type="number"
+                                className="border-gray-700 bg-gray-800 text-white"
+                                value={data.quantity}
+                                onChange={(e) =>
+                                    setData('quantity', e.target.value)
+                                }
+                            />
+                            {errors.quantity && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {errors.quantity}
                                 </p>
                             )}
                         </div>

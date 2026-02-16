@@ -20,6 +20,7 @@ class AdminDashboard extends Controller
         $userCount = User::count();
         $orderCount = Order::count();
         $product = Product::count();
+        $lowStockProducts = Product::where('quantity', '<', 20)->get();
         $category = Product::where("parent_id", null)->count();
         $pandingOrders = Order::where('status', 'pending')->count();
         $ProcessingOrders = Order::where('status', 'processing')->count();
@@ -48,6 +49,7 @@ class AdminDashboard extends Controller
         $data = [
             'userCount' => $userCount,
             'orderCount' => $orderCount,
+            "lowStockProducts"=> $lowStockProducts,
             'productCount' => $product,
             'categoryCount' => $category,
             'pandingOrders' => $pandingOrders,

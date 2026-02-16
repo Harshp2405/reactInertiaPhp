@@ -114,9 +114,5 @@ class CartController extends Controller
         return redirect(route('Cart.index'))->with('success','Deleted');
     }
 
-    public function sendMail(Cart $cart){
-        Mail::to(auth()->user()->email)->send(new Checkout($cart));
-        return redirect()
-            ->route('Products.index');
-    }
+
 }

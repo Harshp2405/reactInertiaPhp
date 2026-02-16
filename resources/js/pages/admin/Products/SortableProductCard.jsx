@@ -99,9 +99,14 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
 
             {/* Content */}
             <CardContent>
-                <p className="text-lg font-semibold text-green-500">
-                    ₹ {Number(dt.price)}
-                </p>
+                <div className="flex flex-row justify-between gap-2">
+                    <p className="text-lg font-semibold text-green-500">
+                        ₹ {Number(dt.price)}
+                    </p>
+                    <p className="text-lg font-semibold text-gray-500">
+                        Quantity: {Number(dt.quantity)}
+                    </p>
+                </div>
             </CardContent>
 
             {/* Footer */}

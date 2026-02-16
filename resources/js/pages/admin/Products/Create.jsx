@@ -24,7 +24,8 @@ export default function Create() {
         description: '',
         parent_id: '',
         images: [],
-        default_image:null
+        default_image:null,
+        quantity: 0,
     });
     console.log(data, '---------------------Data----------------');
 
@@ -92,7 +93,6 @@ export default function Create() {
                             <p className="text-red-600">{errors.name}</p>
                         )}
                         <br />
-
                         <Label htmlFor="price">price of product</Label>
                         <br />
                         <Input
@@ -104,7 +104,18 @@ export default function Create() {
                             <p className="text-red-600">{errors.price}</p>
                         )}
                         <br />
-
+                        {/*  quantity */}
+                        <Label htmlFor="quantity">quantity of product</Label>
+                        <br />
+                        <Input
+                            name="quantity"
+                            value={data.quantity}
+                            onChange={handleChange}
+                        />
+                        {errors.quantity && (
+                            <p className="text-red-600">{errors.quantity}</p>
+                        )}
+                        <br />
                         <Label htmlFor="description">
                             description of product
                         </Label>

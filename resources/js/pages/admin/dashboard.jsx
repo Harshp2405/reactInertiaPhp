@@ -65,7 +65,7 @@ export default function Dashboard({stats}) {
 
             <div className="flex flex-col gap-6">
                 {/* Top Cards */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                <div className="grid grid-cols-3 gap-4 md:grid-cols-3 lg:grid-cols-6">
                     {cards.map((card) => (
                         <div
                             key={card.title}

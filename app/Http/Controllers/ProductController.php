@@ -320,14 +320,5 @@ class ProductController extends Controller
     }
 
 // Send Mail
-    public function sendMail(Request $request)
-    {
-        $product = Product::findOrFail($request->id);
-
-        Mail::to('admin@example.com')->send(
-            new ProductCreated($product)
-        );
-
-        return back()->with('success', 'Mail sent');
-    }
+   
 }

@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CheckoutController extends Controller
@@ -34,45 +35,84 @@ class CheckoutController extends Controller
         if ($cartItems->isEmpty()) {
             return back()->with('error', 'Cart is empty');
         }
+        DB::beginTransaction();
 
-        $subtotal = $cartItems->sum(fn($item) => $item->total);
-        $tax = $subtotal * 0.05;
-        $shipping = 50;
-        $total = $subtotal + $tax + $shipping;
+        try {
 
-        $order = Order::create([
-            'user_id' => $userId,
-            'subtotal' => $subtotal,
-            'tax' => $tax,
-            'shipping' => $shipping,
-            'total' => $total,
-            'address_line1' => $request->address_line1,
-            'address_line2' => $request->address_line2,
-            'city' => $request->city,
-            'state' => $request->state,
-            'postal_code' => $request->postal_code,
-            'country' => $request->country,
-        ]);
+            // 🔹 CHECK STOCK FIRST
+            foreach ($cartItems as $item) {
+                $product = Product::lockForUpdate()->find($item->product_id);
 
-        foreach ($cartItems as $item) {
-            $order->items()->create([
-                'product_id' => $item->product_id,
-                'quantity' => $item->quantity,
-                'price' => $item->price,
-                'total' => $item->total,
+                if (!$product || $product->quantity < $item->quantity) {
+                    DB::rollBack();
+                    return back()->with('error', "Not enough stock for {$product->name}");
+                }
+            }
+
+            $subtotal = $cartItems->sum(fn($item) => $item->total);
+            $tax = $subtotal * 0.05;
+            $shipping = 50;
+            $total = $subtotal + $tax + $shipping;
+
+            $order = Order::create([
+                'user_id' => $userId,
+                'subtotal' => $subtotal,
+                'tax' => $tax,
+                'shipping' => $shipping,
+                'total' => $total,
+                'address_line1' => $request->address_line1,
+                'address_line2' => $request->address_line2,
+                'city' => $request->city,
+                'state' => $request->state,
+                'postal_code' => $request->postal_code,
+                'country' => $request->country,
             ]);
+
+            foreach ($cartItems as $item) {
+
+                $product = Product::lockForUpdate()->find($item->product_id);
+
+                // 🔹 Create order item
+                $order->items()->create([
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'total' => $item->total,
+                ]);
+
+                // 🔹 Decrease stock safely
+                $product->decrement('quantity', $item->quantity);
+            }
+
+            // 🔹 Clear cart
+            Cart::where('user_id', $userId)->delete();
+
+            DB::commit();
+
+            return redirect()->route('Products.index', $order->id);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Something went wrong $e->getMessage()');
         }
 
-        // Clear cart
-        Cart::where('user_id', $userId)->delete();
 
-        return redirect()->route('Products.index', $order->id);
     }
 }
 
 
+// lockForUpdate()
+// Prevents this situation:
+// User A buys last 2 items
+// User B buys same 2 items at same time
+// Stock becomes -2 ❌
+// lockForUpdate() locks that row until transaction finishes.
 
 
+// decrement() is Atomic
+// $product->decrement('quantity', $item->quantity);
+// This is safe and optimized.
+
+// =======================================================================================
 //If need quantity change
 
     // public function store(Request $request)

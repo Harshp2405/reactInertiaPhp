@@ -171,6 +171,34 @@ export default function Index({ Data, User, categories }) {
                         <div className="grid grid-cols-4 gap-4">
                             {items
                                 .filter((item) => item.price !== '0.00')
+                                .map((dt) =>
+                                    dt.quantity > 20 ? (
+                                        <SortableProductCard
+                                            key={dt.id}
+                                            dt={dt}
+                                            processing={processing}
+                                            onDelete={handleDelete}
+                                            User={User}
+                                        />
+                                    ) : (
+                                        <div className="relative">
+                                            <p className="absolute top-75 left-25 z-5 text-red-500 font-bold text-xl">
+                                                Out of stock
+                                            </p>
+                                            <div className="disabled text-xl font-bold opacity-50">
+                                                <SortableProductCard
+                                                    key={dt.id}
+                                                    dt={dt}
+                                                    processing={processing}
+                                                    onDelete={handleDelete}
+                                                    User={User}
+                                                />
+                                            </div>
+                                        </div>
+                                    ),
+                                )}
+                            {/* {items
+                                .filter((item) => item.price !== '0.00')
                                 .map((dt) => (
                                     <SortableProductCard
                                         key={dt.id}
@@ -179,7 +207,7 @@ export default function Index({ Data, User, categories }) {
                                         onDelete={handleDelete}
                                         User={User}
                                     />
-                                ))}
+                                ))} */}
                         </div>
                     </SortableContext>
                 </DndContext>
