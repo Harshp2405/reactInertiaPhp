@@ -40,7 +40,7 @@ export default function Index({ Data, User, categories }) {
         max_price: initialFilters?.max_price ?? '',
     });
 
-    const [items, setItems] = useState(initialData);
+    const [items, setItems] = useState(initialData.data);
 
     // console.log(items, '---------------------Data----------------');
     // console.log(User, '---------------------Data----------------');
@@ -93,8 +93,8 @@ export default function Index({ Data, User, categories }) {
     };
 
     useEffect(() => {
-        setItems(initialData);
-    }, [initialData]);
+        setItems(initialData.data);
+    }, [initialData.data]);
 
     // console.log(initialData,"===============================initialData==================================");
 
@@ -102,7 +102,6 @@ export default function Index({ Data, User, categories }) {
         <>
             <AppLayout breadcrumbs={breadcrumbs}>
                 {/* <h2>Welcome Admin {User.name}</h2> */}
-                {console.log(User)}
                 {User.name}
                 <div className="m-4">
                     <Button onClick={() => router.get('/Products/create')}>
@@ -198,6 +197,25 @@ export default function Index({ Data, User, categories }) {
                                         </div>
                                     ),
                                 )}
+                        </div>
+                        <div className="mt-6 flex justify-center gap-2">
+                            {initialData.links.map((link, index) => (
+                                <button
+                                    key={index}
+                                    disabled={!link.url}
+                                    className={`rounded px-3 py-1 ${
+                                        link.active
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-gray-200 text-black'
+                                    }`}
+                                    onClick={() =>
+                                        link.url && router.get(link.url)
+                                    }
+                                    dangerouslySetInnerHTML={{
+                                        __html: link.label,
+                                    }}
+                                />
+                            ))}
                         </div>
                     </SortableContext>
                 </DndContext>

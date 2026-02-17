@@ -96,7 +96,7 @@ class ProductController extends Controller
 
         $categories = Product::where('parent_id', null)->get();
 
-        $products = $query->get();
+        $products = $query->orderBy('id', 'desc')->paginate(20)->withQueryString();
 
         return Inertia::render('Products/Index', [
             'Data' => $products,

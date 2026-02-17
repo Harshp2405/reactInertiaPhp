@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use App\Events\ProductCreated;
+use App\Jobs\ImportProductsFromCSV;
 use Inertia\Inertia;
 
 class AdminProductController extends Controller
@@ -310,50 +311,17 @@ class AdminProductController extends Controller
     {
         // Validate the uploaded CSV file
         $request->validate([
-            'csv_file' => 'required|mimes:csv,txt|max:2048',  // Adjust max size as needed
+            'csv_file' => 'required|mimes:csv,txt|max:2048',
         ]);
 
-        // Get the uploaded file
-        $file = $request->file('csv_file');
+        // Store the file in storage/app/temp_csv_upload
+        $path = $request->file('csv_file')->store('temp_csv_upload');
 
+        // Dispatch job with relative path
+        ImportProductsFromCSV::dispatch($path);
 
-
-        // Open the CSV file using League CSV package
-        $csv = Reader::createFromPath($file->getRealPath(), 'r');
-        $csv->setHeaderOffset(0); // Set the first row as the header
-
-        // Process the CSV file
-        $stmt = (new Statement());
-        $records = $stmt->process($csv);
-
-        // Insert products into the database
-        foreach ($records as $record) {
-            Product::create([
-                'name' => $record['name'] ?? null,
-                'price' => $record['price'] ?? 0,
-                'description' => $record['description'] ?? null,
-
-                'parent_id' => !empty($record['parent_id'])
-                    ? (int) $record['parent_id']
-                    : null,
-
-                'is_parent' => isset($record['is_parent'])
-                    ? (bool) $record['is_parent']
-                    : false,
-
-                'default_image' => !empty($record['default_image'])
-                    ? $record['default_image']
-                    : null,
-
-                'active' => isset($record['active'])
-                    ? (bool) $record['active']
-                    : true,
-            ]);
-        }
-
-        // Return a response once the products are uploaded successfully
         return redirect()
             ->route('admin.products.index')
-            ->with('message', 'Product created')->with('email', 'Email Sent success fully')->with('success', 'Product created successfully.');
+            ->with('success', 'Product import queued successfully.');
     }
 }

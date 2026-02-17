@@ -44,6 +44,7 @@ export default function Index({ Data }) {
             router.delete(`/cart/${id}`, {
                 onSuccess: () => {
                     setItems((prev) => prev.filter((item) => item.id !== id));
+                    onSuccess: toast.success('Item deleted successfully');
                 },
             });
             
@@ -52,7 +53,9 @@ export default function Index({ Data }) {
     };
 
     const checkout = () => {
-        router.get('/Checkout');
+        router.get('/Checkout',{
+            onSuccess: () => {toast.success('Checkout successful');}
+        });
         console.log('Checkout');
     };
 

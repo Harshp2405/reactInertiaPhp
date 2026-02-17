@@ -1,4 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import toast from 'react-hot-toast';
 
 export default function Checkout({ cart }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -17,7 +18,10 @@ export default function Checkout({ cart }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post('/Checkout');
+        post('/Checkout',{
+            onSuccess: () => toast.success('Order placed successfully'),
+        });
+
     };
 
     return (
