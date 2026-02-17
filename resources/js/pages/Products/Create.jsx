@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { useEffect } from 'react';
-
+import toast from 'react-hot-toast';
 const breadcrumbs = [
     {
         title: 'Create Products',
@@ -14,9 +14,9 @@ const breadcrumbs = [
 ];
 
 export default function Create() {
-    const { flash, categories = [] } = usePage().props;
-    console.log(flash , "----------------------flash")
-    
+    const { flash = {}, categories = [] } = usePage().props;
+    // console.log(flash , "----------------------Data")
+
     // console.log(categories , "------------------cat")
     const { data, setData, post, processing, errors } = useForm({
         name: '',
@@ -24,9 +24,10 @@ export default function Create() {
         description: '',
         parent_id: '',
         images: [],
-        default_image:null
+        default_image: null,
+        quantity: 0,
     });
-    console.log(data, '---------------------Data----------------');
+    // console.log(data, '---------------------Data----------------');
 
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
@@ -42,10 +43,8 @@ export default function Create() {
         e.preventDefault();
         post('/Products', {
             forceFormData: true,
-        });
-
-        post('/send-product-mail', {
-            product_id: data.id,
+            onSuccess: () => toast.success('Product created'),
+            onError: () => toast.error('Failed'),
         });
 
         console.log(data);
@@ -102,6 +101,19 @@ export default function Create() {
                         />
                         {errors.price && (
                             <p className="text-red-600">{errors.price}</p>
+                        )}
+                        <br />
+
+                        {/*  quantity */}
+                        <Label htmlFor="quantity">quantity of product</Label>
+                        <br />
+                        <Input
+                            name="quantity"
+                            value={data.quantity}
+                            onChange={handleChange}
+                        />
+                        {errors.quantity && (
+                            <p className="text-red-600">{errors.quantity}</p>
                         )}
                         <br />
 

@@ -6,6 +6,8 @@ use App\Mail\ProductCreated;
 use App\Models\Images;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Product;
+use App\Models\User;
+use Illuminate\Container\Attributes\DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,8 +62,15 @@ class ProductController extends Controller
 
     //     // return Inertia::render("Products/Index", compact('data'));
     //     return Inertia::render("Products/Index", ['Data' => $data, "User" => $user]);
-        
+
     // }
+
+    private $userId;
+
+    public function __construct()
+    {
+        $this->userId = auth()->id();
+    }
     public function index(Request $request)
     {
         $query = Product::query()->with('images', 'parent', 'children')->where('active', true);
@@ -128,7 +137,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
-
+            
             $data = $request->validate([
                 'name' => 'required|string|max:255',
                 'price' => 'required|numeric|max:999999.99',
@@ -139,16 +148,30 @@ class ProductController extends Controller
 
                 'images' => 'nullable|array|max:5',
                 'images.*' => 'image|max:2048',
+
+                'quantity' => 'required|integer|min:0',
             ]);
-            if ($request->hasFile('default_image')) {
-            }
 
             $data['is_parent'] = false;
             $product = Product::create($data);
+            
+            $updated = User::where('id', $this->userId)
+                ->increment('Wallet', +5000);
 
-            Mail::to(auth()->user()->email)->send(new ProductCreated($product));
+            if (!$updated) {
+                DB::rollBack();
+                return back()->with('error', 'Insufficient wallet balance.');
+            }
 
-            $data['default_image'] = $request->file('default_image')->store("products/{$product->id}/thumbnail/", 'public');
+
+            if ($request->hasFile('default_image')) {
+                $path = $request->file('default_image')
+                    ->store("products/{$product->id}/thumbnail/", 'public');
+
+                $product->update([
+                    'default_image' => $path,
+                ]);
+            }
 
             if ($product->parent_id) {
                 Product::where('id', $product->parent_id)->update([
@@ -168,6 +191,7 @@ class ProductController extends Controller
             // dd($request->file('images'));
             return redirect()
                 ->route('Products.index')
+                ->with('success', 'Product created')
                 ->with('message', 'Product created')->with('email', 'Email Sent success fully');
         } catch (QueryException $e) {
             return back()
@@ -220,6 +244,8 @@ class ProductController extends Controller
             'default_image' => 'nullable|image|max:2048',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|max:2048',
+
+            'quantity' => 'required|integer|min:0',
         ]);
         $oldParentId = $product->parent_id;
 
@@ -312,13 +338,23 @@ class ProductController extends Controller
             Storage::disk('public')->delete($img->image);
         }
 
+        $updated = User::where('id', $this->userId)
+            ->decrement('Wallet', 5000);
+
+        if (!$updated) {
+            DB::rollBack();
+            return back()->with('error', 'Insufficient wallet balance.');
+        }
+
         $product->delete();
 
-        return redirect()
-            ->route('Products.index')
-            ->with('message', 'Deleted');
+
+        return Inertia::location(route('Products.index'));
+        // return redirect()
+        //     ->route('Products.index')
+        //     ->with('success', 'Product deleted successfully.')
+        //     ->with('message', 'deleted');
     }
 
-// Send Mail
-   
+
 }

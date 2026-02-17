@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -79,5 +80,15 @@ class OrderController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+
+    public function invoice(Order $order)
+    {
+        $order->load('items.product');
+
+        $pdf = Pdf::loadView('pdf.invoice', compact('order'));
+
+        return $pdf->download("invoice-{$order->id}.pdf");
     }
 }

@@ -20,11 +20,18 @@ import {
 } from '@dnd-kit/sortable';
 
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const breadcrumbs = [{ title: 'Products', href: '/Products' }];
 
 export default function Index({ Data, User, categories }) {
-    const { Data: initialData, filters: initialFilters = {} } = usePage().props;
+    const {
+        Data: initialData,
+        filters: initialFilters = {},
+        flash = {},
+    } = usePage().props;
+
+
 
     const [filters, setFilters] = useState({
         search: initialFilters?.search ?? '',
@@ -63,6 +70,7 @@ export default function Index({ Data, User, categories }) {
             router.delete(`/Products/${id}`, {
                 onSuccess: () => {
                     setItems((prev) => prev.filter((item) => item.id !== id));
+                    toast.success ('Product deleted');
                 },
             });
         }
@@ -93,22 +101,15 @@ export default function Index({ Data, User, categories }) {
     return (
         <>
             <AppLayout breadcrumbs={breadcrumbs}>
-                {User.role === 1 ? (
-                    //User Code
-                    <>{/* <h2>Welcome User {User.name}</h2> */}</>
-                ) : (
-                    //Admin Code
-                    <>
-                        {/* <h2>Welcome Admin {User.name}</h2> */}
-                        <div className="m-4">
-                            <Button
-                                onClick={() => router.get('/Products/create')}
-                            >
-                                Create Product
-                            </Button>
-                        </div>
-                    </>
-                )}
+                {/* <h2>Welcome Admin {User.name}</h2> */}
+                {console.log(User)}
+                {User.name}
+                <div className="m-4">
+                    <Button onClick={() => router.get('/Products/create')}>
+                        Sell Products
+                    </Button>
+                </div>
+
                 <Head title="Products" />
 
                 <DndContext
@@ -182,7 +183,7 @@ export default function Index({ Data, User, categories }) {
                                         />
                                     ) : (
                                         <div className="relative">
-                                            <p className="absolute top-75 left-25 z-5 text-red-500 font-bold text-xl">
+                                            <p className="absolute top-75 left-25 z-5 text-xl font-bold text-red-500">
                                                 Out of stock
                                             </p>
                                             <div className="disabled text-xl font-bold opacity-50">
@@ -197,17 +198,6 @@ export default function Index({ Data, User, categories }) {
                                         </div>
                                     ),
                                 )}
-                            {/* {items
-                                .filter((item) => item.price !== '0.00')
-                                .map((dt) => (
-                                    <SortableProductCard
-                                        key={dt.id}
-                                        dt={dt}
-                                        processing={processing}
-                                        onDelete={handleDelete}
-                                        User={User}
-                                    />
-                                ))} */}
                         </div>
                     </SortableContext>
                 </DndContext>

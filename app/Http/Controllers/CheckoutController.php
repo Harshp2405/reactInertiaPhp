@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -19,7 +20,7 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request )
     {
         $request->validate([
             'address_line1' => 'required',
@@ -84,12 +85,24 @@ class CheckoutController extends Controller
                 $product->decrement('quantity', $item->quantity);
             }
 
+            // 🔹 CHECK WALLET BALANCE
+            $updated = User::where('id', $userId)
+                ->where('Wallet', '>=', $total)
+                ->decrement('Wallet', $total);
+
+            User::where('id' , $item->product->created_by)->increment('Wallet' , 2000);
+
+            if (!$updated) {
+                DB::rollBack();
+                return back()->with('error', 'Insufficient wallet balance.');
+            }
+
             // 🔹 Clear cart
             Cart::where('user_id', $userId)->delete();
 
             DB::commit();
 
-            return redirect()->route('Products.index', $order->id);
+            return redirect()->route('Products.index', $order->id)->with('success', 'Order placed successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Something went wrong $e->getMessage()');

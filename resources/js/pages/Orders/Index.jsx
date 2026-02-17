@@ -39,7 +39,7 @@ export default function OrdersIndex({ orders }) {
                             Looks like you haven’t placed any orders.
                         </p>
                         <Link
-                            href="/shop"
+                            href="/Products"
                             className="mt-6 rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-blue-700 active:scale-95"
                         >
                             Start Shopping

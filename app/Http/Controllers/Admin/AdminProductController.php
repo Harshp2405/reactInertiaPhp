@@ -53,9 +53,9 @@ class AdminProductController extends Controller
         ]);
     }
 
-/**
- * Get categories with their children for dropdowns or filters.
- */
+    /**
+     * Get categories with their children for dropdowns or filters.
+     */
     public function getCategory()
     {
         $categories = Product::with('children')
@@ -97,12 +97,11 @@ class AdminProductController extends Controller
 
                 'quantity' => 'required|integer|min:0',
             ]);
-            if ($request->hasFile('default_image')) {
-            }
+
 
             $data['is_parent'] = false;
             $product = Product::create($data);
-//Event Register
+            //Event Register
             event(new ProductCreated($product));
 
 
@@ -133,7 +132,7 @@ class AdminProductController extends Controller
             // dd($request->file('images'));
             return redirect()
                 ->route('admin.products.index')
-                ->with('message', 'Product created')->with('email', 'Email Sent success fully');
+                ->with('message', 'Product created')->with('email', 'Email Sent success fully')->with('success', 'Product created successfully.');
         } catch (QueryException $e) {
             return back()
                 ->withErrors(['price' => 'Invalid price value'])
@@ -187,7 +186,7 @@ class AdminProductController extends Controller
 
         $d = ["user" => auth()->user()->id];
 
-        $product->update($data );
+        $product->update($data);
 
         if ($oldParentId && $oldParentId !== $product->parent_id) {
             $hasChildren = Product::where('parent_id', $oldParentId)->exists();
@@ -253,7 +252,7 @@ class AdminProductController extends Controller
 
         $product->delete();
 
-        return response()->json(['message' => 'Product deleted successfully']);
+        return Inertia::location(route('admin.products.index'));
         // return Inertia::render("admin/Products/Index", [
         //     'message' => 'Product deleted successfully',
         // ]);
@@ -283,7 +282,7 @@ class AdminProductController extends Controller
             }
         }
 
-        return back()->with('message', 'Product updated');
+        return back()->with('message', 'Product updated')->with('success', 'Product images updated successfully.');
     }
 
     public function editImage(Product $product)
@@ -355,6 +354,6 @@ class AdminProductController extends Controller
         // Return a response once the products are uploaded successfully
         return redirect()
             ->route('admin.products.index')
-            ->with('message', 'Product created')->with('email', 'Email Sent success fully');
+            ->with('message', 'Product created')->with('email', 'Email Sent success fully')->with('success', 'Product created successfully.');
     }
 }

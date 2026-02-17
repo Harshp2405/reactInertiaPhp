@@ -10,10 +10,12 @@ import {
     CardHeader,
     CardTitle,
 } from '../../components/ui/card.tsx';
+import toast from 'react-hot-toast';
 
 export default function SortableProductCard({ dt, processing, onDelete ,User }) {
 
     // console.log(User, '---------------------User----------------');
+    // console.log(dt, '---------------------dt----------------');
 
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: dt.id });
@@ -55,10 +57,16 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/Cart', {
-            product_id: data.product_id,
-            quantity: data.quantity,
-        });
+        post(
+            '/cart',
+            {
+                product_id: data.product_id,
+                quantity: data.quantity,
+                onSuccess: () => toast.success('Added to cart'),
+                onError: () => toast.error('Failed to add to cart'),
+            },
+
+        );
         console.log("Add to cart")
 
     };
@@ -145,7 +153,7 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
 
             {/* Footer */}
             <CardFooter className="grid grid-rows-2 gap-2">
-                {User.role !== 1 && (
+                {User.id == dt.created_by && (
                     <>
                         {/* Update */}
                         <Link

@@ -37,9 +37,14 @@ interface Auth {
 }
 
 const userNavItem: NavItem[] = [
+    // {
+    //     title: 'Dashboard',
+    //     href: dashboard(),
+    //     icon: LayoutGrid,
+    // },
     {
-        title: 'Dashboard',
-        href: dashboard(),
+        title: 'DashBoard User',
+        href: '/user/dashboard',
         icon: LayoutGrid,
     },
     {
@@ -54,7 +59,7 @@ const userNavItem: NavItem[] = [
     // },
     {
         title: 'Cart',
-        href: '/Cart',
+        href: '/cart',
         icon: ShoppingCartIcon,
     },
     {

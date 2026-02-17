@@ -28,7 +28,7 @@ export default function Checkout({ cart }) {
                 <h1 className="mb-4 text-2xl font-bold">Checkout</h1>
                 <button
                     type="button"
-                    onClick={() => router.get('/Cart')}
+                    onClick={() => router.get('/cart')}
                     className="mb-4 rounded bg-gray-700 px-4 py-2 text-white hover:bg-gray-600"
                 >
                     ← Back

@@ -111,7 +111,8 @@ class CartController extends Controller
     public function destroy(Cart $cart)
     {
         $cart->delete();
-        return redirect(route('Cart.index'))->with('success','Deleted');
+        // return redirect(route('cart.index'))->with('success','Deleted');
+        return Inertia::location(route('cart.index'));
     }
 
 

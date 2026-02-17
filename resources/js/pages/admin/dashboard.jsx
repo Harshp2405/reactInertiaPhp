@@ -1,4 +1,18 @@
 // resources/js/Pages/Admin/Dashboard.tsx
+import { Button } from '../../components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '../../components/ui/dialog';
+
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 
 import AppLayout from '@/layouts/app-layout';
 import React from 'react';
@@ -10,6 +24,9 @@ import {
     Users,
     Boxes,
     Box,
+    CaseLower,
+    WifiLow,
+    WifiLowIcon,
 } from 'lucide-react';
 import Chart from './Charts/Chart';
 const breadcrumbs = [
@@ -19,69 +36,133 @@ const breadcrumbs = [
     },
 ];
 export default function Dashboard({stats}) {
+    const lowStockProducts = stats.lowStockProducts || [];
     const cards = [
         {
             title: 'Total Users',
             value: stats.userCount,
             icon: Users,
-            color: 'bg-blue-500',
+            color: 'bg-blue-600',
         },
         {
             title: 'Total Products',
             value: stats.productCount,
             icon: Box,
-            color: 'bg-green-500',
+            color: 'bg-green-600',
         },
         {
             title: 'Total Orders',
             value: stats.orderCount,
             icon: ShoppingCart,
-            color: 'bg-yellow-500',
+            color: 'bg-yellow-600',
         },
         {
             title: 'Today Sales',
             value: `₹ ${stats.TodaySales}`,
-            icon: IndianRupee ,
-            color: 'bg-purple-500',
+            icon: IndianRupee,
+            color: 'bg-purple-600',
         },
         {
             title: 'Total Sales',
             value: `₹ ${stats.TotalSales}`,
-            icon: IndianRupee ,
-            color: 'bg-indigo-500',
+            icon: IndianRupee,
+            color: 'bg-indigo-600',
         },
         {
             title: 'Categories',
             value: stats.categoryCount,
             icon: Boxes,
-            color: 'bg-red-500',
+            color: 'bg-red-700',
+        },
+        {
+            title: 'lowStockProducts',
+            value: stats.lowStockProducts.length,
+            icon: WifiLowIcon,
+            color: 'bg-orange-800',
         },
     ];
     console.log(stats)
-    // console.log(stats.SalesByDate.map((data) => data.date.split('-')[2]));
+
+
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
             <div className="flex flex-col gap-6">
                 {/* Top Cards */}
-                <div className="grid grid-cols-3 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                <div className="grid grid-cols-3 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {cards.map((card) => (
-                        <div
-                            key={card.title}
-                            className={`flex flex-col items-start justify-center rounded-xl p-4 text-white ${card.color}`}
-                        >
-                            <div className="flex items-center gap-2">
-                                <card.icon className="h-6 w-6 opacity-90" />
-                                <h3 className="text-sm font-medium">
-                                    {card.title}
-                                </h3>
+                        <>
+                            <div
+                                key={card.title}
+                                className={`flex flex-col items-start justify-center rounded-xl p-4 text-white ${card.color}`}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <card.icon className="h-6 w-6 opacity-90" />
+                                    <h3 className="text-sm font-medium">
+                                        {card.title}
+                                    </h3>
+                                </div>
+                                <p className="mt-2 text-2xl font-bold">
+                                    {card.value}
+                                </p>
                             </div>
-                            <p className="mt-2 text-2xl font-bold">
-                                {card.value}
-                            </p>
-                        </div>
+                        </>
                     ))}
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                View Low Stock Products
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle>Low Stock Products</DialogTitle>
+                                <DialogDescription>
+                                    These products are running low in stock.
+                                    Consider restocking them.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <div className="mt-4 flex max-h-80 flex-col gap-2 overflow-y-auto">
+                                {lowStockProducts.length === 0 && (
+                                    <p className="text-gray-500">
+                                        No low-stock products.
+                                    </p>
+                                )}
+
+                                {lowStockProducts.map((product) => (
+                                    <div
+                                        key={product.id}
+                                        className="flex items-center justify-between border-b py-2"
+                                    >
+                                        <div>
+                                            <p className="font-medium">
+                                                {product.name}
+                                            </p>
+                                            <p className="text-sm text-gray-500">
+                                                Price: ${product.price}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm">
+                                                Stock: {product.quantity}
+                                            </p>
+                                            {/* Optional: Add a button to edit product */}
+                                            {/* <Button size="sm" variant="outline">Edit</Button> */}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button variant="outline">Close</Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                 </div>
 
                 {/* Bestselling Products */}
@@ -153,9 +234,7 @@ export default function Dashboard({stats}) {
                     </div>
                 </div>
 
-                <Chart
-                    stats={stats}
-                />
+                <Chart stats={stats} />
             </div>
         </AppLayout>
     );

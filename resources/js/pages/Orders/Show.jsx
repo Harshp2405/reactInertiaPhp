@@ -20,6 +20,16 @@ export default function Show({ order }) {
                     ← Back to Orders
                 </button>
 
+                <button
+                    type="button"
+                    onClick={() =>
+                        window.open(`/orders/${order.id}/invoice`, '_blank')
+                    }
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500"
+                >
+                    Download Invoice (PDF)
+                </button>
+
                 {/* Header */}
                 <div className="mb-6 rounded-2xl border border-gray-800 bg-linear-to-br from-gray-950 to-gray-900 p-6 shadow-md">
                     <div className="flex items-center justify-between">

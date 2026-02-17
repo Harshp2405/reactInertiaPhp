@@ -15,7 +15,7 @@ import { Trash } from 'lucide-react';
 
 import { useState } from 'react';
 
-const breadcrumbs = [{ title: 'Cart', href: '/Cart' }];
+const breadcrumbs = [{ title: 'Cart', href: '/cart' }];
 
 export default function Index({ Data }) {
     const { Data: initialData } = usePage().props;
@@ -31,12 +31,22 @@ export default function Index({ Data }) {
     };
 
     const handleDelete = (id) => {
+
+        console.log('Deleting ID:', id);
+        console.log(items , "-----------------------------------Items")
+
+        if (!id) {
+            alert('ID is undefined!');
+            return;
+        }
+
         if (confirm('Are you sure to delete?')) {
-            router.delete(`/Cart/${id}`, {
+            router.delete(`/cart/${id}`, {
                 onSuccess: () => {
                     setItems((prev) => prev.filter((item) => item.id !== id));
                 },
             });
+            
         }
         console.log('delete', id);
     };
@@ -68,7 +78,7 @@ export default function Index({ Data }) {
                         </TableHeader>
                         <TableBody>
                             {items.map((dt, key) => (
-                                <TableRow key={key}>
+                                <TableRow key={dt.id}>
                                     <TableCell className="font-medium">
                                         {key + 1}
                                     </TableCell>

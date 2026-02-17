@@ -22,6 +22,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TodolistController;
+use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -35,29 +36,31 @@ Route::get('/', function () {
 })->name('home');
 
 
-Route::get('dashboard', function () {
-    return Inertia::render('dashboard');
-})->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-
+    
+    Route::get('dashboard', function () {
+        return Inertia::render('dashboard');
+    })->name('dashboard');
 
 /** Product Routes */
+
+        Route::get('user/dashboard', [UserDashboard::class, 'dashBoardData'])->name('dashBoardData');
 
         Route::get('Products/categeory', [ProductController::class , "getCategeory"])->name('getCategeory');
         Route::resource('Products', ProductController::class)->parameters(['Products' => 'product']);
         Route::resource('todo', TodolistController::class);
 
         
-        /** Product Routes */
-        Route::resource('Cart', CartController::class)->parameters(['Cart' => 'cart']);
+        /** Cart Routes */
+        Route::resource('cart', CartController::class);
 
     Route::get('/Checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/Checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
+    // Order Routes
     Route::resource('orders', OrderController::class);
-
-
+    Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
 });
 
 /* Admin Routes */
