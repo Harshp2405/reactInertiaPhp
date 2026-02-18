@@ -91,6 +91,20 @@ const adminNavItems: NavItem[] = [
         icon: ListOrderedIcon,
     },
 ];
+const productNavItems: NavItem[] = [
+    
+    {
+        title: 'Product Dashboard',
+        href: '/productmanager/dashboard',
+        icon: ShoppingBasketIcon,
+    },
+    {
+        title: 'Product Index',
+        href: '/productmanager/product',
+        icon: ShoppingBasketIcon,
+    },
+   
+];
 
 const footerNavItems: NavItem[] = [
     {
@@ -105,65 +119,48 @@ const footerNavItems: NavItem[] = [
     },
 ];
 
+const navMap: Record<number, NavItem[]> = {
+    0: adminNavItems, // Super Admin
+    1: userNavItem, // User
+    2: productNavItems, // Product Manager
+    3: userNavItem, // Order Manager
+    4: userNavItem, // Customer Support
+    5: userNavItem, // Accountant
+};
+  
+
 export function AppSidebar() {
     const { auth } = usePage<{ auth?: Auth }>().props;
     // Optional chaining to avoid undefined errors
-    const userRole = auth?.user?.role;
+    const userRole = (auth?.user?.role) ?? 1;
+    const navItems = navMap[Number(userRole)] || userNavItem;
     return (
         <>
-            {userRole === (0 as unknown as string) ? (
-                <Sidebar collapsible="icon" variant="inset">
-                    {/* Sidebar header with logo */}
-                    <SidebarHeader>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton size="lg" asChild>
-                                    <Link href={dashboard()} prefetch>
-                                        <AppLogo />
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarHeader>
+            <Sidebar collapsible="icon" variant="inset">
+                {/* Sidebar header */}
+                <SidebarHeader>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton size="lg" asChild>
+                                <Link href={dashboard()} prefetch>
+                                    <AppLogo />
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarHeader>
 
-                    {/* Sidebar main navigation */}
-                    <SidebarContent>
-                        <NavMain items={adminNavItems} />
-                    </SidebarContent>
+                {/* Sidebar main navigation */}
+                <SidebarContent>
+                    <NavMain items={navItems} />
+                </SidebarContent>
 
-                    {/* Sidebar footer */}
-                    <SidebarFooter>
-                        <NavFooter items={footerNavItems} className="mt-auto" />
-                        <NavUser />
-                    </SidebarFooter>
-                </Sidebar>
-            ) : (
-                <Sidebar collapsible="icon" variant="inset">
-                    {/* Sidebar header with logo */}
-                    <SidebarHeader>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton size="lg" asChild>
-                                    <Link href={dashboard()} prefetch>
-                                        <AppLogo />
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarHeader>
-
-                    {/* Sidebar main navigation */}
-                    <SidebarContent>
-                        <NavMain items={userNavItem} />
-                    </SidebarContent>
-
-                    {/* Sidebar footer */}
-                    <SidebarFooter>
-                        <NavFooter items={footerNavItems} className="mt-auto" />
-                        <NavUser />
-                    </SidebarFooter>
-                </Sidebar>
-            )}
+                {/* Sidebar footer */}
+                <SidebarFooter>
+                    <NavFooter items={footerNavItems} className="mt-auto" />
+                    <NavUser />
+                </SidebarFooter>
+            </Sidebar>
         </>
     );
 }

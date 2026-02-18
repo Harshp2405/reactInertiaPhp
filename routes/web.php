@@ -21,6 +21,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductManager\dashboard;
 use App\Http\Controllers\TodolistController;
 use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Mail;
@@ -36,8 +37,8 @@ Route::get('/', function () {
 })->name('home');
 
 
-
-Route::middleware(['auth', 'verified'])->group(function () {
+/* User Routes */
+Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
     
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
@@ -83,11 +84,32 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
     Route::get('admin/products/categeory', [AdminProductController::class, "getCategeory"])->name('products.getCategeory');
     Route::post('admin/p/{product}', [AdminProductController::class, "changeImage"])->name('products.changeImage');
     Route::get('admin/products/{product}/editimage', [AdminProductController::class, "editImage"])->name('products.editImage');
-
-
 }) ;
 
 
+/*Product Manager  */
 
 
-require __DIR__.'/settings.php';
+Route::middleware(['auth', 'verified', 'role:2'])->prefix('productmanager')->name('productmanager.')->group(function () {
+    Route::get('/dashboard', [dashboard::class, 'dashboard'])->name('dashboard');
+    Route::get('product/categeory', [dashboard::class, "getCategeory"])->name('product.getCategeory');
+    Route::post('product/upload-csv', [dashboard::class, 'uploadCSV'])->name('product.uploadCSV');
+    Route::post('product/{id}/toggle-status', [dashboard::class, 'toggleActiveStatus'])->name('product.toggleStatus');
+    Route::resource('product', controller: dashboard::class);
+});
+/*Order Manager    */
+
+Route::middleware(['auth', 'verified', 'role:3'])->name('ordermanager.')->group(function () {});
+
+/*Customer Support */
+
+Route::middleware(['auth', 'verified', 'role:4'])->name('customersupport.')->group(function () {});
+
+/*Accountant       */
+
+Route::middleware(['auth', 'verified', 'role:5'])->name('accountant.')->group(function () {});
+
+
+
+
+        require __DIR__.'/settings.php';

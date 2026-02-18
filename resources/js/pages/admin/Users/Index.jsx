@@ -17,6 +17,18 @@ export default function Index() {
         }
     };
     
+    // console.log(users , "_______________________________Users_______________________________")
+
+    const roleNames = {
+        0:'Super Admin',
+        1: 'User',
+        2: 'Product Manager',
+        3: 'Order Manager',
+        4: 'Customer Support',
+        5: 'Accountant',
+    };
+
+
 
     return (
         <AppLayout>
@@ -29,6 +41,7 @@ export default function Index() {
                             <th className="border p-2">ID</th>
                             <th className="border p-2">Name</th>
                             <th className="border p-2">Email</th>
+                            <th className="border p-2">Role</th>
                             <th className="border p-2">Actions</th>
                         </tr>
                     </thead>
@@ -38,6 +51,9 @@ export default function Index() {
                                 <td className="border p-2">{user.id}</td>
                                 <td className="border p-2">{user.name}</td>
                                 <td className="border p-2">{user.email}</td>
+                                <td className="border p-2">
+                                    {roleNames[user.role] || users.role}
+                                </td>
                                 <td className="space-x-2 border p-2">
                                     <Link
                                         href={`/admin/users/${user.id}`}
@@ -58,19 +74,27 @@ export default function Index() {
                 </table>
 
                 <div className="mt-4 flex justify-center space-x-2">
-                    {users.links.map((link, index) => (
-                        <Link
-                            key={index}
-                            href={link.url || '#'}
-                            dangerouslySetInnerHTML={{ __html: link.label }}
-                            className={`rounded px-3 py-1 ${
-                                link.active
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-200 text-black'
-                            }`}
-                            preserveScroll
-                        />
-                    ))}
+                    {users.links.map((link, index) =>
+                        link.url ? (
+                            <Link
+                                key={index}
+                                href={link.url}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                className={`rounded px-3 py-1 ${
+                                    link.active
+                                        ? 'bg-blue-600 text-white'
+                                        : 'bg-gray-200 text-black'
+                                }`}
+                                preserveScroll
+                            />
+                        ) : (
+                            <span
+                                key={index}
+                                className="rounded px-3 py-1 text-gray-500"
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        ),
+                    )}
                 </div>
             </div>
         </AppLayout>

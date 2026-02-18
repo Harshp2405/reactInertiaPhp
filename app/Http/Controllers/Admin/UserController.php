@@ -76,9 +76,23 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, User $user)
     {
-        //
+        $request->validate([
+            'role' => 'required|integer|in:0,1,2,3,4,5',
+        ]);
+
+        $user->update([
+            'role' => $request->role,
+        ]);
+        
+        // Reload user with relations
+        $user->load('orders.items.product');
+
+        // Return as Inertia page (not raw JSON)
+        return Inertia::render('admin/Users/SingleDetails', [
+            'user' => $user,
+        ]);
     }
 
     /**
