@@ -27,11 +27,11 @@ class AdminDashboard extends Controller
         $ShippedOrders = Order::where('status', 'shipped')->count();
         $DeliveredOrders = Order::where('status', 'delivered')->count();
         $CancelledOrders = Order::where('status', 'cancelled')->count();
-        $BestsellingProducts = OrderItem::with('products')
+        $BestsellingProducts = OrderItem::with('product')
             ->selectRaw('product_id, COUNT(*) as count')
             ->groupBy('product_id')
             ->orderByDesc('count')
-            ->limit(3);
+            ->limit(3)->get();
 
         $TotalSales = Order::sum('subtotal');
         $TodaySales = Order::whereDate('created_at', now()->toDateString())->sum('subtotal');

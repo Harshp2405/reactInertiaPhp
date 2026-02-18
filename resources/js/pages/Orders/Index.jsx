@@ -28,7 +28,7 @@ export default function OrdersIndex({ orders }) {
 
                 {orders.length === 0 ? (
                     /* Empty State */
-                    <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-950 to-gray-900 py-16 text-center shadow-lg">
+                    <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-800 bg-linear-to-br from-gray-950 to-gray-900 py-16 text-center shadow-lg">
                         <div className="mb-4 rounded-full bg-gray-800 p-4">
                             📦
                         </div>
@@ -50,7 +50,7 @@ export default function OrdersIndex({ orders }) {
                         {orders.map((order) => (
                             <div
                                 key={order.id}
-                                className="group flex flex-col gap-6 rounded-2xl border border-gray-800 bg-gradient-to-br from-gray-950 to-gray-900 p-6 shadow-md transition-all duration-300 hover:border-gray-600 hover:shadow-2xl sm:flex-row sm:items-center sm:justify-between"
+                                className="group flex flex-col gap-6 rounded-2xl border border-gray-800 bg-linear-to-br from-gray-950 to-gray-900 p-6 shadow-md transition-all duration-300 hover:border-gray-600 hover:shadow-2xl sm:flex-row sm:items-center sm:justify-between"
                             >
                                 {/* Left */}
                                 <div>
