@@ -18,7 +18,8 @@ export default function SortableProductCard({
     onDelete,
     User,
 }) {
-    // console.log(dt, '---------------------User----------------');
+    // console.log(dt, '---------------------dt----------------');
+    // console.log(User, '---------------------User----------------');
     const [isSelected, setIsSelected] = useState(dt.active);
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: dt.id });
@@ -111,23 +112,34 @@ export default function SortableProductCard({
 
             {/* Footer */}
             <CardFooter className="grid grid-rows-2 gap-2">
+                {/* can_delete
+: 
+true
+can_edit
+: 
+true */}
                 <>
                     {/* Update */}
-                    <Link
-                        href={`/productmanager/product/${dt.id}/edit`}
-                        className="rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
-                    >
-                        Update Data
-                    </Link>
+                    {User.permissions.can_edit === true && (
+                        <Link
+                            href={`/productmanager/product/${dt.id}/edit`}
+                            className="rounded-md bg-blue-600 px-3 py-1.5 text-center text-sm text-white hover:bg-blue-700"
+                        >
+                            Update Data
+                        </Link>
+                    )}
+
                     {/* Delete */}
-                    <button
-                        type="button"
-                        disabled={processing}
-                        onClick={() => onDelete(dt.id)}
-                        className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700"
-                    >
-                        Delete
-                    </button>
+                    {User.permissions.can_delete === true && (
+                        <button
+                            type="button"
+                            disabled={processing}
+                            onClick={() => onDelete(dt.id)}
+                            className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-700"
+                        >
+                            Delete
+                        </button>
+                    )}
                 </>
 
                 {/* Show by id */}

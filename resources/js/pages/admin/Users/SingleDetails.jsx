@@ -4,7 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import toast from 'react-hot-toast'
 export default function Show() {
     const { user } = usePage().props;
-// console.log(user)
+
 
 
     const styles = {
@@ -34,6 +34,23 @@ export default function Show() {
     ];
 
     const [selectedRole, setSelectedRole] = useState(user.role);
+    const [permissions, setPermissions] = useState(
+        user.permissions || {
+            can_edit: false,
+            can_add: false,
+            can_delete: false,
+            can_view: true,
+        },
+    );
+
+    const handlePermissionChange = (e) => {
+        const { name, checked } = e.target;
+        setPermissions((prev) => ({
+            ...prev,
+            [name]: checked,
+        }));
+    };
+    
 
     const handleRoleChange = (e) => {
         const value = Number(e.target.value);
@@ -45,8 +62,9 @@ export default function Show() {
     const handleUpdateRole = () => {
         router.put(
             `/admin/users/${user.id}`,
-            { role: selectedRole },
-            { preserveScroll: true,
+            { role: selectedRole, permissions: permissions },
+            {
+                preserveScroll: true,
                 onSuccess: (page) => {
                     toast.success('Role updated successfully!');
                     console.log(page.props.user); // updated user from backend
@@ -76,26 +94,69 @@ export default function Show() {
                         Role: {roleNames[user.role] || user.role}
                     </span>
                 </div>
-                <select
-                    value={selectedRole}
-                    onChange={handleRoleChange}
-                    className="rounded border border-gray-700 bg-gray-900 px-3 py-1 text-white"
-                >
-                    {' '}
-                    {roleOptions.map((role) => (
-                        <option key={role.value} value={role.value}>
-                            {' '}
-                            {role.label}{' '}
-                        </option>
-                    ))}{' '}
-                </select>{' '}
-                <button
-                    onClick={handleUpdateRole}
-                    className="rounded bg-indigo-600 px-3 py-1 text-sm text-white hover:bg-indigo-500"
-                >
-                    {' '}
-                    Update Role{' '}
-                </button>
+
+                {/* Permissions and role */}
+
+                <div className="mb-6 rounded-xl border border-gray-800 bg-gray-900 p-6 shadow-lg">
+                    {/* Role Selection */}
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-3">
+                            <label className="font-medium text-gray-300">
+                                Role:
+                            </label>
+                            <select
+                                value={selectedRole}
+                                onChange={handleRoleChange}
+                                className="rounded border border-gray-700 bg-gray-800 px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            >
+                                {roleOptions.map((role) => (
+                                    <option key={role.value} value={role.value}>
+                                        {role.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <button
+                            onClick={handleUpdateRole}
+                            className="rounded bg-indigo-600 px-4 py-2 font-medium text-white transition duration-200 hover:bg-indigo-500"
+                        >
+                            Update Role & Permissions
+                        </button>
+                    </div>
+
+                    {/* Permissions */}
+                    {user.role !== 1 && (
+                        <div className="mt-6">
+                            <h3 className="mb-3 font-semibold text-gray-300">
+                                Permissions
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                                {Object.keys(permissions).map((perm) => (
+                                    <label
+                                        key={perm}
+                                        className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 transition hover:border-indigo-500"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            name={perm}
+                                            checked={permissions[perm]}
+                                            onChange={handlePermissionChange}
+                                            className="h-4 w-4 rounded border-gray-700 bg-gray-900 text-indigo-500 focus:ring-indigo-500"
+                                        />
+                                        <span className="font-medium text-gray-200">
+                                            {perm
+                                                .replace('can_', '')
+                                                .replace('_', ' ')
+                                                .toUpperCase()}
+                                        </span>
+                                    </label>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* Orders */}
                 <div className="space-6">
                     <div className="grid grid-cols-3 gap-6">

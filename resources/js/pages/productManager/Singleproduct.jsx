@@ -19,10 +19,10 @@ const breadcrumbs = [
 
 export default function Singleproduct({ product }) {
     if (!product) return null;
-    console.log(
-        product,
-        '---------------------------Product----------------------------------',
-    );
+    // console.log(
+    //     product,
+    //     '---------------------------Product----------------------------------',
+    // );
 
     // 👉 Default image logic
     const defaultImage = product.default_image

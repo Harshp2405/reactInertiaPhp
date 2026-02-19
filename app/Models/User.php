@@ -24,7 +24,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role'
+        'role',
+        'permissions',
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'permissions' => 'array',
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
@@ -61,5 +63,24 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+    public function canEdit(): bool
+    {
+        return $this->permissions['can_edit'] ?? false;
+    }
+
+    public function canAdd(): bool
+    {
+        return $this->permissions['can_add'] ?? false;
+    }
+
+    public function canDelete(): bool
+    {
+        return $this->permissions['can_delete'] ?? false;
+    }
+
+    public function canView(): bool
+    {
+        return $this->permissions['can_view'] ?? true;
     }
 }

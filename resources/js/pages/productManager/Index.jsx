@@ -9,6 +9,8 @@ const breadcrumbs = [{ title: 'Product', href: '/productmanager/product' }];
 export default function Index({ Data, User, categories, processing }) {
     const { Data: initialData, filters: initialFilters = {} } = usePage().props;
 
+    // console.log(User)
+
     const [filters, setFilters] = useState({
         search: initialFilters?.search ?? '',
         category: initialFilters?.category ?? '',
@@ -98,45 +100,53 @@ export default function Index({ Data, User, categories, processing }) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <form onSubmit={handleSubmit} className="m-4">
-                <label
-                    htmlFor="csv-upload"
-                    className="mb-2 block text-sm text-gray-700"
-                >
-                    Upload CSV File
-                </label>
-                <input
-                    id="csv-upload"
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileChange}
-                    className="mb-4"
-                />
-                <div>
-                    {data.csv_file == null ? (
-                        <button
-                            type="submit"
-                            disabled
-                            className="rounded-md bg-red-500 px-4 py-2 text-white"
+            {User.permissions.can_add === true && (
+                <>
+                    <form onSubmit={handleSubmit} className="m-4">
+                        <label
+                            htmlFor="csv-upload"
+                            className="mb-2 block text-sm text-gray-700"
                         >
-                            Choose File to upload
-                        </button>
-                    ) : (
-                        <button
-                            type="submit"
-                            className="rounded-md bg-blue-500 px-4 py-2 text-white"
-                        >
-                            Submit
-                        </button>
-                    )}
-                </div>
-            </form>
+                            Upload CSV File
+                        </label>
+                        <input
+                            id="csv-upload"
+                            type="file"
+                            accept=".csv"
+                            onChange={handleFileChange}
+                            className="mb-4"
+                        />
+                        <div>
+                            {data.csv_file == null ? (
+                                <button
+                                    type="submit"
+                                    disabled
+                                    className="rounded-md bg-red-500 px-4 py-2 text-white"
+                                >
+                                    Choose File to upload
+                                </button>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    className="rounded-md bg-blue-500 px-4 py-2 text-white"
+                                >
+                                    Submit
+                                </button>
+                            )}
+                        </div>
+                    </form>
 
-            <div className="m-4">
-                <Button onClick={() => router.get('/productmanager/product/create')}>
-                    Create Product
-                </Button>
-            </div>
+                    <div className="m-4">
+                        <Button
+                            onClick={() =>
+                                router.get('/productmanager/product/create')
+                            }
+                        >
+                            Create Product
+                        </Button>
+                    </div>
+                </>
+            )}
 
             {/* ...filters UI */}
             <div className="m-4 grid grid-cols-4 gap-4">

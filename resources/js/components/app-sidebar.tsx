@@ -37,11 +37,11 @@ interface Auth {
 }
 
 const userNavItem: NavItem[] = [
-    // {
-    //     title: 'Dashboard',
-    //     href: dashboard(),
-    //     icon: LayoutGrid,
-    // },
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
     {
         title: 'DashBoard User',
         href: '/user/dashboard',
@@ -69,7 +69,11 @@ const userNavItem: NavItem[] = [
     },
 ];
 const adminNavItems: NavItem[] = [
-
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
     {
         title: 'Dashboard',
         href: '/admin/dashboard',
@@ -92,7 +96,11 @@ const adminNavItems: NavItem[] = [
     },
 ];
 const productNavItems: NavItem[] = [
-    
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
     {
         title: 'Product Dashboard',
         href: '/productmanager/dashboard',
@@ -103,7 +111,6 @@ const productNavItems: NavItem[] = [
         href: '/productmanager/product',
         icon: ShoppingBasketIcon,
     },
-   
 ];
 
 const footerNavItems: NavItem[] = [
@@ -142,7 +149,7 @@ export function AppSidebar() {
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" asChild>
-                                <Link href={dashboard()} prefetch>
+                                <Link href={navItems[0].href} prefetch>
                                     <AppLogo />
                                 </Link>
                             </SidebarMenuButton>

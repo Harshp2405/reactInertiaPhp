@@ -80,10 +80,16 @@ class UserController extends Controller
     {
         $request->validate([
             'role' => 'required|integer|in:0,1,2,3,4,5',
+            'permissions' => 'required|array',
+            'permissions.can_edit' => 'boolean',
+            'permissions.can_add' => 'boolean',
+            'permissions.can_delete' => 'boolean',
+            'permissions.can_view' => 'boolean',
         ]);
 
         $user->update([
             'role' => $request->role,
+            'permissions' => $request->permissions,
         ]);
         
         // Reload user with relations

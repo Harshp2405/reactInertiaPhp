@@ -36,13 +36,13 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+Route::get('dashboard', function () {
+    return Inertia::render('dashboard');
+})->name('dashboard');
+
 
 /* User Routes */
 Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
-    
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
 
 /** Product Routes */
 
@@ -65,7 +65,6 @@ Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
 });
 
 /* Admin Routes */
-
 Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(function () {
 
     Route::get('admin/dashboard', [AdminDashboard::class, 'dashBoardData'])->name('dashBoardData');
@@ -80,7 +79,6 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
 
     Route::resource('admin/orders', AdminOrderController::class);
 
-
     Route::get('admin/products/categeory', [AdminProductController::class, "getCategeory"])->name('products.getCategeory');
     Route::post('admin/p/{product}', [AdminProductController::class, "changeImage"])->name('products.changeImage');
     Route::get('admin/products/{product}/editimage', [AdminProductController::class, "editImage"])->name('products.editImage');
@@ -88,28 +86,34 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
 
 
 /*Product Manager  */
-
-
 Route::middleware(['auth', 'verified', 'role:2'])->prefix('productmanager')->name('productmanager.')->group(function () {
+
     Route::get('/dashboard', [dashboard::class, 'dashboard'])->name('dashboard');
-    Route::get('product/categeory', [dashboard::class, "getCategeory"])->name('product.getCategeory');
+    Route::get('product/categeory', [dashboard::class, "getCategeory"])->name('products.getCategeory');
     Route::post('product/upload-csv', [dashboard::class, 'uploadCSV'])->name('product.uploadCSV');
     Route::post('product/{id}/toggle-status', [dashboard::class, 'toggleActiveStatus'])->name('product.toggleStatus');
     Route::resource('product', controller: dashboard::class);
 });
-/*Order Manager    */
 
-Route::middleware(['auth', 'verified', 'role:3'])->name('ordermanager.')->group(function () {});
+/*Order Manager    */
+Route::middleware(['auth', 'verified', 'role:3'])->name('ordermanager.')->group(function () {
+
+});
+
+
 
 /*Customer Support */
+Route::middleware(['auth', 'verified', 'role:4'])->name('customersupport.')->group(function () {
 
-Route::middleware(['auth', 'verified', 'role:4'])->name('customersupport.')->group(function () {});
+});
+
 
 /*Accountant       */
+Route::middleware(['auth', 'verified', 'role:5'])->name('accountant.')->group(function () {
 
-Route::middleware(['auth', 'verified', 'role:5'])->name('accountant.')->group(function () {});
+});
 
 
 
 
-        require __DIR__.'/settings.php';
+    require __DIR__.'/settings.php';

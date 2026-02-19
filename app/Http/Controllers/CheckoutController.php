@@ -36,25 +36,56 @@ class CheckoutController extends Controller
         if ($cartItems->isEmpty()) {
             return back()->with('error', 'Cart is empty');
         }
+
         DB::beginTransaction();
 
         try {
 
-            // 🔹 CHECK STOCK FIRST
+            // ===============================
+            // 1️⃣ LOCK PRODUCTS & CHECK STOCK
+            // ===============================
+            $products = [];
+
             foreach ($cartItems as $item) {
+
                 $product = Product::lockForUpdate()->find($item->product_id);
 
-                if (!$product || $product->quantity < $item->quantity) {
+                if (!$product) {
+                    DB::rollBack();
+                    return back()->with('error', 'Product not found.');
+                }
+
+                if ($product->quantity < $item->quantity) {
                     DB::rollBack();
                     return back()->with('error', "Not enough stock for {$product->name}");
                 }
+
+                $products[$item->product_id] = $product;
             }
 
+            // ===============================
+            // 2️⃣ CALCULATE TOTALS
+            // ===============================
             $subtotal = $cartItems->sum(fn($item) => $item->total);
             $tax = $subtotal * 0.05;
             $shipping = 50;
             $total = $subtotal + $tax + $shipping;
 
+            // ===============================
+            // 3️⃣ CHECK WALLET BALANCE FIRST
+            // ===============================
+            $walletUpdated = User::where('id', $userId)
+                ->where('Wallet', '>=', $total)
+                ->decrement('Wallet', $total);
+
+            if (!$walletUpdated) {
+                DB::rollBack();
+                return back()->with('error', 'Insufficient wallet balance.');
+            }
+
+            // ===============================
+            // 4️⃣ CREATE ORDER
+            // ===============================
             $order = Order::create([
                 'user_id' => $userId,
                 'subtotal' => $subtotal,
@@ -69,11 +100,14 @@ class CheckoutController extends Controller
                 'country' => $request->country,
             ]);
 
+            // ===============================
+            // 5️⃣ CREATE ORDER ITEMS + UPDATE STOCK
+            // ===============================
             foreach ($cartItems as $item) {
 
-                $product = Product::lockForUpdate()->find($item->product_id);
+                $product = $products[$item->product_id];
 
-                // 🔹 Create order item
+                // Create order item
                 $order->items()->create([
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
@@ -81,34 +115,28 @@ class CheckoutController extends Controller
                     'total' => $item->total,
                 ]);
 
-                // 🔹 Decrease stock safely
+                // Decrease stock safely
                 $product->decrement('quantity', $item->quantity);
+
+                // Increase seller wallet (example: seller gets item total)
+                User::where('id', $product->created_by)
+                    ->increment('Wallet', $item->total);
             }
 
-            // 🔹 CHECK WALLET BALANCE
-            $updated = User::where('id', $userId)
-                ->where('Wallet', '>=', $total)
-                ->decrement('Wallet', $total);
-
-            User::where('id' , $item->product->created_by)->increment('Wallet' , 2000);
-
-            if (!$updated) {
-                DB::rollBack();
-                return back()->with('error', 'Insufficient wallet balance.');
-            }
-
-            // 🔹 Clear cart
+            // ===============================
+            // 6️⃣ CLEAR CART
+            // ===============================
             Cart::where('user_id', $userId)->delete();
 
             DB::commit();
 
-            return redirect()->route('Products.index', $order->id)->with('success', 'Order placed successfully.');
+            return redirect()
+                ->route('orders.show', $order->id)
+                ->with('success', 'Order placed successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Something went wrong $e->getMessage()');
+            dd($e->getMessage());
         }
-
-
     }
 }
 
