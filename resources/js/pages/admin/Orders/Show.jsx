@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { usePage, router, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import toast from 'react-hot-toast'
+import { Button } from '../../../components/ui/button';
 
 export default function ShowOrder() {
     const { order:initialOrder } = usePage().props;
@@ -19,7 +21,7 @@ export default function ShowOrder() {
             { status },
             {
                 preserveScroll: true,
-                onSuccess: () => console.log('Status updated'),
+                onSuccess: () => toast.success('Status updated'),
                 onError: (err) => console.error(err),
             },
         );
@@ -33,6 +35,7 @@ export default function ShowOrder() {
 
     return (
         <AppLayout>
+           
             <div className="min-h-screen bg-gray-950 p-6 text-gray-100">
                 <Link
                     href="/admin/orders"

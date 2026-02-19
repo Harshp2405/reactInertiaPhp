@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderManager\orderManager;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductManager\dashboard;
 use App\Http\Controllers\TodolistController;
@@ -96,8 +97,9 @@ Route::middleware(['auth', 'verified', 'role:2'])->prefix('productmanager')->nam
 });
 
 /*Order Manager    */
-Route::middleware(['auth', 'verified', 'role:3'])->name('ordermanager.')->group(function () {
-
+Route::middleware(['auth', 'verified', 'role:3'])->prefix('ordermanager')->name('ordermanager.')->group(function () {
+    Route::get('/dashboard', [orderManager::class, 'dashboard'])->name('dashboard');
+    Route::resource('order', controller: orderManager::class);
 });
 
 

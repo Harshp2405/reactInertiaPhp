@@ -95,6 +95,23 @@ const adminNavItems: NavItem[] = [
         icon: ListOrderedIcon,
     },
 ];
+const orderNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'order Dashboard',
+        href: '/ordermanager/dashboard',
+        icon: ShoppingBasketIcon,
+    },
+    // {
+    //     title: 'order',
+    //     href: '/ordermanager/order',
+    //     icon: ShoppingBasketIcon,
+    // },
+];
 const productNavItems: NavItem[] = [
     {
         title: 'Dashboard',
@@ -130,7 +147,7 @@ const navMap: Record<number, NavItem[]> = {
     0: adminNavItems, // Super Admin
     1: userNavItem, // User
     2: productNavItems, // Product Manager
-    3: userNavItem, // Order Manager
+    3: orderNavItems, // Order Manager
     4: userNavItem, // Customer Support
     5: userNavItem, // Accountant
 };
