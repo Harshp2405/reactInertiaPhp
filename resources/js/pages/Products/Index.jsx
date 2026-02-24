@@ -101,6 +101,7 @@ export default function Index({ Data, User, categories }) {
     return (
         <>
             <AppLayout breadcrumbs={breadcrumbs}>
+                
                 {/* <h2>Welcome Admin {User.name}</h2> */}
                 {User.name}
                 <div className="m-4">

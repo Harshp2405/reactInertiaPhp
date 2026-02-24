@@ -4,6 +4,7 @@ import {
     Folder,
     LayoutGrid,
     ListOrderedIcon,
+    ReplyIcon,
     ShoppingBasketIcon,
     ShoppingCartIcon,
     UserIcon,
@@ -67,6 +68,11 @@ const userNavItem: NavItem[] = [
         href: '/orders',
         icon: ListOrderedIcon,
     },
+    {
+        title: 'Reports',
+        href: '/report',
+        icon: ReplyIcon,
+    },
 ];
 const adminNavItems: NavItem[] = [
     {
@@ -93,6 +99,11 @@ const adminNavItems: NavItem[] = [
         title: 'Orders',
         href: '/admin/orders',
         icon: ListOrderedIcon,
+    },
+    {
+        title: 'Reports',
+        href: '/admin/reports',
+        icon: ReplyIcon,
     },
 ];
 const orderNavItems: NavItem[] = [
@@ -129,6 +140,18 @@ const productNavItems: NavItem[] = [
         icon: ShoppingBasketIcon,
     },
 ];
+const accountantNavItems: NavItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+        icon: LayoutGrid,
+    },
+    {
+        title: 'account Dashboard',
+        href: '/account/Accountdashboard',
+        icon: ShoppingBasketIcon,
+    },
+];
 
 const footerNavItems: NavItem[] = [
     {
@@ -149,7 +172,7 @@ const navMap: Record<number, NavItem[]> = {
     2: productNavItems, // Product Manager
     3: orderNavItems, // Order Manager
     4: userNavItem, // Customer Support
-    5: userNavItem, // Accountant
+    5: accountantNavItems, // Accountant
 };
   
 

@@ -1,3 +1,4 @@
+import './echo';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { StrictMode } from 'react';
@@ -6,21 +7,21 @@ import '../css/app.css';
 import { Toaster } from 'react-hot-toast';
 import { initializeTheme } from './hooks/use-appearance';
 
-
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
         resolvePageComponent(
-            `./pages/${name}.tsx`,
-            import.meta.glob('./pages/**/*.tsx'),
-        ).catch(() =>
-            resolvePageComponent(
-                `./pages/${name}.jsx`,
-                import.meta.glob('./pages/**/*.jsx'),
-            ),
-        ), // Add to write jsx file
+            `./pages/${name}.{tsx,jsx}`,
+            import.meta.glob('./pages/**/*.{tsx,jsx}'),
+        ),
+        // .catch(() =>
+        //     resolvePageComponent(
+        //         `./pages/${name}.jsx`,
+        //         import.meta.glob('./pages/**/*.jsx'),
+        //     ),
+        // ),
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(

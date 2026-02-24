@@ -71,8 +71,8 @@ class AdminProductController extends Controller
      */
     public function create()
     {
-        $parents = Product::all(['id', 'name']);
-
+        $parents = Product::whereNull('parent_id')
+            ->get(['id', 'name']);
         return Inertia::render("admin/Products/Create", [
             'categories' => $parents,
         ]);

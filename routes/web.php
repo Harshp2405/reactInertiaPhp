@@ -23,12 +23,16 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderManager\orderManager;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductManager\dashboard;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Sales\accountManager;
 use App\Http\Controllers\TodolistController;
 use App\Http\Controllers\UserDashboard;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
+
+use App\Http\Controllers\Auth\LoginController;
 use App\Mail\ProductCreated;
 
 Route::get('/', function () {
@@ -42,9 +46,12 @@ Route::get('dashboard', function () {
 })->name('dashboard');
 
 
+Route::get('/login', [LoginController::class, 'create'])
+    ->middleware('guest')
+    ->name('login');
+
 /* User Routes */
 Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
-
 /** Product Routes */
 
         Route::get('user/dashboard', [UserDashboard::class, 'dashBoardData'])->name('dashBoardData');
@@ -63,6 +70,10 @@ Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
     // Order Routes
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{order}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
+
+    // Report Route
+    Route::get('/report', [ReportController::class, 'create'])->name('report.create');
+    Route::post('/report', [ReportController::class, 'store'])->name('report.store');
 });
 
 /* Admin Routes */
@@ -83,6 +94,10 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
     Route::get('admin/products/categeory', [AdminProductController::class, "getCategeory"])->name('products.getCategeory');
     Route::post('admin/p/{product}', [AdminProductController::class, "changeImage"])->name('products.changeImage');
     Route::get('admin/products/{product}/editimage', [AdminProductController::class, "editImage"])->name('products.editImage');
+
+
+    Route::get('admin/reports', [ReportController::class, 'index'])->name('report.index');
+    Route::post('admin/reports/{report}/resolve', [ReportController::class, 'resolve'])->name('report.resolve');
 }) ;
 
 
@@ -111,8 +126,8 @@ Route::middleware(['auth', 'verified', 'role:4'])->name('customersupport.')->gro
 
 
 /*Accountant       */
-Route::middleware(['auth', 'verified', 'role:5'])->name('accountant.')->group(function () {
-
+Route::middleware(['auth', 'verified', 'role:5'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/Accountdashboard', [accountManager::class, 'dashboard'])->name('account.dashboard ');
 });
 
 

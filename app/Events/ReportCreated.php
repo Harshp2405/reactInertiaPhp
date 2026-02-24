@@ -2,28 +2,26 @@
 
 namespace App\Events;
 
-use App\Models\Product;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ProductCreated 
+class ReportCreated implements ShouldBroadcastNow
 {
     use Dispatchable , SerializesModels;
+    public $report;
 
     /**
      * Create a new event instance.
      */
-
-    public $product;
-
-    public function __construct(Product $product)
+    public function __construct($report)
     {
-        $this->product = $product;
+        $this->report = $report->load('user');
     }
 
     /**
@@ -34,8 +32,12 @@ class ProductCreated
     public function broadcastOn(): array
     {
         return [
-            'id' => $this->product->id,
-            'name' => $this->product->name,
+            new Channel('reports'),
         ];
+    }
+
+    public function broadcastAs()
+    {
+        return 'report.created';
     }
 }

@@ -15,8 +15,8 @@ const breadcrumbs = [
 
 export default function Create() {
     const { flash, categories = [] } = usePage().props;
-    console.log(flash , "----------------------flash")
-    
+    // console.log(flash , "----------------------flash")
+    // console.log(categories)
     // console.log(categories , "------------------cat")
     const { data, setData, post, processing, errors } = useForm({
         name: '',
@@ -27,7 +27,7 @@ export default function Create() {
         default_image:null,
         quantity: 0,
     });
-    console.log(data, '---------------------Data----------------');
+    // console.log(data, '---------------------Data----------------');
 
     useEffect(() => {
         if (Object.keys(errors).length > 0) {
@@ -49,7 +49,7 @@ export default function Create() {
         //     product_id: data.id,
         // });
 
-        console.log(data);
+        // console.log(data);
     };
 
     console.log(JSON.stringify(errors));
