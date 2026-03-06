@@ -75,11 +75,11 @@ const userNavItem: NavItem[] = [
     },
 ];
 const adminNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
+    // {
+    //     title: 'Dashboard',
+    //     href: dashboard(),
+    //     icon: LayoutGrid,
+    // },
     {
         title: 'Dashboard',
         href: '/admin/dashboard',

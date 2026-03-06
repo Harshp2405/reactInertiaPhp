@@ -15,14 +15,15 @@ createInertiaApp({
         resolvePageComponent(
             `./pages/${name}.{tsx,jsx}`,
             import.meta.glob('./pages/**/*.{tsx,jsx}'),
+        )
+        .catch(() =>
+            resolvePageComponent(
+                `./pages/${name}.jsx`,
+                import.meta.glob('./pages/**/*.jsx'),
+            ),
         ),
-        // .catch(() =>
-        //     resolvePageComponent(
-        //         `./pages/${name}.jsx`,
-        //         import.meta.glob('./pages/**/*.jsx'),
-        //     ),
-        // ),
     setup({ el, App, props }) {
+        
         const root = createRoot(el);
         root.render(
             <StrictMode>

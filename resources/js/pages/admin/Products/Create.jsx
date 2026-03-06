@@ -1,10 +1,30 @@
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+// const validationSchema = Yup.object({
+//     name: Yup.string().required('Name is required'),
+//     price: Yup.number()
+//         .typeError('Price must be a number')
+//         .positive('Price must be positive')
+//         .min(0, `Can't be 0`)
+//         .max(1000000, `Can't Greater than 10 Lakhs`)
+//         .required('Price is required'),
+//     quantity: Yup.number()
+//         .typeError('Quantity must be a number')
+//         .integer('Quantity must be an integer')
+//         .min(0, 'Quantity cannot be negative')
+//         .max(10000, 'Max Quantity')
+//         .required('Quantity is required'),
+//     description: Yup.string(),
+//     parent_id: Yup.string().nullable(),
+//     images: Yup.mixed(),
+//     default_image: Yup.mixed(),
+// });
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Button } from '../../../components/ui/button';
 import { Label } from '../../../components/ui/label';
 import { Input } from '../../../components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
-import { useEffect } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const breadcrumbs = [
     {
@@ -13,180 +33,222 @@ const breadcrumbs = [
     },
 ];
 
+const validationSchema = Yup.object({
+    name: Yup.string().required('Name is required'),
+    price: Yup.number()
+        .typeError('Price must be a number')
+        .positive('Price must be positive')
+        .min(0, `Can't be less then 0`)
+        .max(1000000, `Can't Greater than 10 Lakhs`)
+        .required('Price is required'),
+    quantity: Yup.number()
+        .typeError('Quantity must be a number')
+        .integer('Quantity must be an integer')
+        .min(2, 'Quantity cannot be negative')
+        .max(10000, 'Max Quantity')
+        .required('Quantity is required'),
+    description: Yup.string(),
+    parent_id: Yup.string().nullable(),
+    images: Yup.mixed(),
+    default_image: Yup.mixed(),
+});
+
 export default function Create() {
     const { flash, categories = [] } = usePage().props;
-    // console.log(flash , "----------------------flash")
-    // console.log(categories)
-    // console.log(categories , "------------------cat")
-    const { data, setData, post, processing, errors } = useForm({
+
+    const initialValues = {
         name: '',
         price: '',
         description: '',
         parent_id: '',
         images: [],
-        default_image:null,
-        quantity: 0,
-    });
-    // console.log(data, '---------------------Data----------------');
+        default_image: null,
+        quantity: 1,
+    };
 
-    useEffect(() => {
-        if (Object.keys(errors).length > 0) {
-            console.log(errors, '--- validation errors ---');
+    const handleSubmit = (values, { setSubmitting, resetForm }) => {
+        const formData = new FormData();
+
+        for (const key in values) {
+            if (key === 'images' && values.images.length > 0) {
+                values.images.forEach((file) =>
+                    formData.append('images[]', file),
+                );
+            } else if (key === 'default_image' && values.default_image) {
+                formData.append('default_image', values.default_image);
+            } else {
+                formData.append(key, values[key]);
+            }
         }
-    }, [errors]);
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setData(name, value);
-    };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        post('/admin/products', {
+        router.post('/admin/products', formData, {
             forceFormData: true,
+            onSuccess: () => {
+                resetForm();
+                setSubmitting(false);
+            },
+            onError: () => {
+                setSubmitting(false);
+            },
         });
-
-        // post('/send-product-mail', {
-        //     product_id: data.id,
-        // });
-
-        // console.log(data);
     };
-
-    console.log(JSON.stringify(errors));
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Products" />
             <div className="m-4">
-                Product Create <br></br>
-                {/* {flash?.success && (
+                Product Create <br />
+                {flash?.success && (
                     <div className="mb-3 rounded bg-green-100 p-2 text-green-700">
                         {flash.success}
-                    </div>
-                )}
-                {flash.email && (
-                    <div className="rounded bg-blue-100 p-2 text-blue-700">
-                        {flash.email}
                     </div>
                 )}
                 {flash?.error && (
                     <div className="mb-3 rounded bg-red-100 p-2 text-red-700">
                         {flash.error}
                     </div>
-                )} */}
+                )}
                 <Link
                     href="/admin/products"
                     className="mb-4 inline-block text-sm text-blue-500 hover:underline"
                 >
                     ← Back to Products
                 </Link>
-                <form onSubmit={handleSubmit}>
-                    <div className="gap-3">
-                        <Label htmlFor="name">name of product</Label>
-                        <br />
-                        <Input
-                            name="name"
-                            value={data.name}
-                            onChange={handleChange}
-                        />
-                        {errors.name && (
-                            <p className="text-red-600">{errors.name}</p>
-                        )}
-                        <br />
-                        <Label htmlFor="price">price of product</Label>
-                        <br />
-                        <Input
-                            name="price"
-                            value={data.price}
-                            onChange={handleChange}
-                        />
-                        {errors.price && (
-                            <p className="text-red-600">{errors.price}</p>
-                        )}
-                        <br />
-                        {/*  quantity */}
-                        <Label htmlFor="quantity">quantity of product</Label>
-                        <br />
-                        <Input
-                            name="quantity"
-                            value={data.quantity}
-                            onChange={handleChange}
-                        />
-                        {errors.quantity && (
-                            <p className="text-red-600">{errors.quantity}</p>
-                        )}
-                        <br />
-                        <Label htmlFor="description">
-                            description of product
-                        </Label>
-                        <br />
-                        <Textarea
-                            name="description"
-                            onChange={handleChange}
-                            value={data.description}
-                            className="rounded-sm border border-amber-50"
-                        />
-                        <br />
-                        <Label htmlFor="parent_id">Category</Label>
-                        <select
-                            name="parent_id"
-                            value={data.parent_id}
-                            onChange={(e) =>
-                                setData('parent_id', e.target.value)
-                            }
-                            className="mt-1 w-full rounded-md border text-sm focus:border-blue-500 focus:outline-none"
-                        >
-                            <option value="">— No Parent (Top Level) —</option>
+                <Formik
+                    initialValues={initialValues}
+                    validationSchema={validationSchema}
+                    onSubmit={handleSubmit}
+                >
+                    {({ setFieldValue, isSubmitting }) => (
+                        <Form>
+                            <div className="gap-3">
+                                <Label htmlFor="name">Name of product</Label>
+                                <Field name="name" as={Input} />
+                                <ErrorMessage
+                                    name="name"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                                <br />
 
-                            {categories.map((cat) => (
-                                <option
-                                    key={cat.id}
-                                    value={cat.id}
-                                    className="bg-gray-600 text-white"
+                                <Label htmlFor="price">Price of product</Label>
+                                <Field name="price" as={Input} />
+                                <ErrorMessage
+                                    name="price"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                                <br />
+
+                                <Label htmlFor="quantity">
+                                    Quantity of product
+                                </Label>
+                                <Field name="quantity" as={Input} />
+                                <ErrorMessage
+                                    name="quantity"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                                <br />
+
+                                <Label htmlFor="description">
+                                    Description of product
+                                </Label>
+                                <Field
+                                    name="description"
+                                    as={Textarea}
+                                    className="rounded-sm border border-amber-50"
+                                />
+                                <ErrorMessage
+                                    name="description"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                                <br />
+
+                                <Label htmlFor="parent_id">Category</Label>
+                                <Field
+                                    as="select"
+                                    name="parent_id"
+                                    className="mt-1 w-full rounded-md border text-sm focus:border-blue-500 focus:outline-none"
                                 >
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                        <br />
-                        {errors.parent_id && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.parent_id}
-                            </p>
-                        )}
-                        <br />
-                        <Label htmlFor="images">Select Images</Label>
-                        <Input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={(e) =>
-                                setData('images', Array.from(e.target.files))
-                            }
-                        />
-                        {errors.images && (
-                            <p className="text-red-600">{errors.images}</p>
-                        )}
-                        <br />
-                        <Label htmlFor="default_image">
-                            Select Thumbnail Images
-                        </Label>
-                        <Input
-                            type="file"
-                            onChange={(e) =>
-                                setData('default_image', e.target.files[0])
-                            }
-                        />
-                        {errors.images && (
-                            <p className="text-red-600">{errors.images}</p>
-                        )}
-                    </div>
-                    <br />
+                                    <option value="">
+                                        — No Parent (Top Level) —
+                                    </option>
+                                    {categories.map((cat) => (
+                                        <option
+                                            key={cat.id}
+                                            value={cat.id}
+                                            className="bg-gray-600 text-white"
+                                        >
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </Field>
+                                <ErrorMessage
+                                    name="parent_id"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                                <br />
 
-                    <Button type="submit" className="my-2">
-                        Add Product
-                    </Button>
-                </form>
+                                <Label htmlFor="images">Select Images</Label>
+                                <br />
+                                <input
+                                    id="images"
+                                    name="images"
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            'images',
+                                            Array.from(e.target.files),
+                                        )
+                                    }
+                                    className="rounded border p-1"
+                                />
+                                <ErrorMessage
+                                    name="images"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                                <br />
+
+                                <Label htmlFor="default_image">
+                                    Select Thumbnail Image
+                                </Label>
+                                <br />
+                                <input
+                                    id="default_image"
+                                    name="default_image"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) =>
+                                        setFieldValue(
+                                            'default_image',
+                                            e.target.files[0],
+                                        )
+                                    }
+                                    className="rounded border p-1"
+                                />
+                                <ErrorMessage
+                                    name="default_image"
+                                    component="p"
+                                    className="text-red-600"
+                                />
+                            </div>
+                            <br />
+                            <Button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="my-2"
+                            >
+                                {isSubmitting ? 'Adding...' : 'Add Product'}
+                            </Button>
+                        </Form>
+                    )}
+                </Formik>
             </div>
         </AppLayout>
     );

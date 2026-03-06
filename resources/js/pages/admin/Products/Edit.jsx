@@ -11,6 +11,8 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from '@/components/ui/carousel';
+import * as Yup from 'yup';
+import { useState } from 'react';
 
 const breadcrumbs = [
     {
@@ -20,24 +22,68 @@ const breadcrumbs = [
 ];
 
 export default function EditProduct({ product, categories = [] }) {
+
+
+    const validation =new Yup.ObjectSchema({
+        name: Yup.string().required('Name is Required'),
+        price: Yup.number()
+            .typeError('Must Be number')
+            .min(1, 'Must be greater than 0')
+            .max(1000000, 'Max value is 10 lakh')
+            .positive('Cant less or be 0 Negative')
+            .required('Cant empty'),
+
+        description: Yup.string(),
+        parent_id: Yup.string().nullable(),
+
+        images: Yup.mixed(),
+        default_image: Yup.mixed(),
+        quantity: Yup.number()
+            .typeError('Must Be number')
+            .min(1, 'Must be greater than 0')
+            .max(10000, 'Max value is 10 thousand')
+            .positive('Cant Negative')
+            .required('Cant empty'),
+    });
+
+    const [yupErrors, setYupErrors] = useState({});
+
+    // console.log(product)
     const { data, setData, post, processing, errors } = useForm({
         name: product.name || '',
         price: product.price || '',
         description: product.description || '',
         parent_id: product.parent_id || '',
         images: [],
-        quantity: 0,
+        quantity: product.quantity,
         default_image: null,
         _method: 'put',
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        post(`/admin/products/${product.id}`, {
-            forceFormData: true,
-            preserveScroll: true,
-        });
+        try {
+            const valid = await validation.validate(data, { abortEarly: false });
+console.log(valid)
+            // If validation passes, submit via Inertia
+            // post(`/admin/products/${product.id}`, {
+            //     forceFormData: true,
+            //     preserveScroll: true,
+            // });
+        } catch (err) {
+            const formattedErrors = {};
+
+            if (err.inner && err.inner.length > 0) {
+                err.inner.forEach((error) => {
+                    if (error.path) formattedErrors[error.path] = error.message;
+                });
+            } else if (err.path) {
+                formattedErrors[err.path] = err.message;
+            }
+console.log(formattedErrors);
+            setYupErrors(formattedErrors);
+        }
     };
 
     return (
@@ -103,9 +149,9 @@ export default function EditProduct({ product, categories = [] }) {
                                     setData('name', e.target.value)
                                 }
                             />
-                            {errors.name && (
+                            {(errors.name || yupErrors.name) && (
                                 <p className="mt-1 text-sm text-red-500">
-                                    {errors.name}
+                                    {yupErrors.name || errors.name}
                                 </p>
                             )}
                         </div>
@@ -121,9 +167,9 @@ export default function EditProduct({ product, categories = [] }) {
                                     setData('price', e.target.value)
                                 }
                             />
-                            {errors.price && (
+                            {(errors.price || yupErrors.price) && (
                                 <p className="mt-1 text-sm text-red-500">
-                                    {errors.price}
+                                    {yupErrors.price || errors.price}
                                 </p>
                             )}
                         </div>
@@ -138,9 +184,9 @@ export default function EditProduct({ product, categories = [] }) {
                                     setData('quantity', e.target.value)
                                 }
                             />
-                            {errors.quantity && (
+                            {(errors.quantity || yupErrors.quantity) && (
                                 <p className="mt-1 text-sm text-red-500">
-                                    {errors.quantity}
+                                    {yupErrors.quantity || errors.quantity}
                                 </p>
                             )}
                         </div>
@@ -155,6 +201,11 @@ export default function EditProduct({ product, categories = [] }) {
                                     setData('description', e.target.value)
                                 }
                             />
+                            {yupErrors.description && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {yupErrors.description}
+                                </p>
+                            )}
                         </div>
 
                         {/* Category */}
@@ -189,6 +240,11 @@ export default function EditProduct({ product, categories = [] }) {
                                     setData('default_image', e.target.files[0])
                                 }
                             />
+                            {(errors.default_image || yupErrors.default_image) && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    {yupErrors.default_image || errors.default_image}
+                                </p>
+                            )}
 
                             {/* Preview */}
                             {data.default_image && (
@@ -202,6 +258,7 @@ export default function EditProduct({ product, categories = [] }) {
                                     />
                                 </div>
                             )}
+                           
                         </div>
 
                         {/* Replace Gallery Images */}
@@ -222,6 +279,11 @@ export default function EditProduct({ product, categories = [] }) {
                                 }
                             />
                         </div>
+                        {(errors.images || yupErrors.images) && (
+                            <p className="mt-1 text-sm text-red-500">
+                                {yupErrors.images || errors.images}
+                            </p>
+                        )}
 
                         {/* Submit */}
                         <Button

@@ -81,7 +81,7 @@ export default function Dashboard({stats}) {
             color: 'bg-orange-800',
         },
     ];
-    console.log(stats)
+
 
 
 
@@ -93,9 +93,8 @@ export default function Dashboard({stats}) {
                 {/* Top Cards */}
                 <div className="grid grid-cols-3 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {cards.map((card) => (
-                        <>
+                        <div key={card.title}>
                             <div
-                                key={card.title}
                                 className={`flex flex-col items-start justify-center rounded-xl p-4 text-white ${card.color}`}
                             >
                                 <div className="flex items-center gap-2">
@@ -108,7 +107,7 @@ export default function Dashboard({stats}) {
                                     {card.value}
                                 </p>
                             </div>
-                        </>
+                        </div>
                     ))}
                     <Dialog>
                         <DialogTrigger asChild>

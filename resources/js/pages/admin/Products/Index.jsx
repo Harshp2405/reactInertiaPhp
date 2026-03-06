@@ -213,6 +213,18 @@ export default function Index({ Data, User, categories, processing }) {
     const [allItems, setAllItems] = useState(initialData); // all products
     const [filteredItems, setFilteredItems] = useState(initialData); // filtered products
 
+//Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+    const paginatedItems = filteredItems.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage,
+    );
+
+
     // Update allItems when initialData changes
     useEffect(() => {
         setAllItems(initialData);
@@ -248,6 +260,7 @@ export default function Index({ Data, User, categories, processing }) {
         }
 
         setFilteredItems(filtered);
+        setCurrentPage(1); // reset page when filters change
     }, [filters, allItems]);
 
     const handleFilterChange = (e) => {
@@ -377,7 +390,7 @@ export default function Index({ Data, User, categories, processing }) {
 
             {/* Render filteredItems here */}
             <div className="grid grid-cols-4 gap-4">
-                {filteredItems
+                {paginatedItems
                     .filter((item) => item.price !== '0.00')
                     .map((dt) => (
                         <SortableProductCard
@@ -390,6 +403,65 @@ export default function Index({ Data, User, categories, processing }) {
                             User={User}
                         />
                     ))}
+            </div>
+            {/*  Pagination */}
+            <div className="mt-6 flex justify-center gap-2">
+                {/* Prev button */}
+                <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                    className="rounded bg-gray-300 px-3 py-1 disabled:opacity-50"
+                >
+                    Prev
+                </button>
+
+                {/* First 3 pages */}
+                {[...Array(Math.min(3, totalPages))].map((_, i) => (
+                    <button
+                        key={i}
+                        onClick={() => setCurrentPage(i + 1)}
+                        className={`rounded px-3 py-1 ${
+                            currentPage === i + 1
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-gray-200'
+                        }`}
+                    >
+                        {i + 1}
+                    </button>
+                ))}
+
+                {/* Ellipsis if needed */}
+                {totalPages > 5 && currentPage > 3 && (
+                    <span className="px-2 py-1 select-none">...</span>
+                )}
+
+                {/* Last 2 pages */}
+                {totalPages > 5 &&
+                    [...Array(2)].map((_, i) => {
+                        const pageNum = totalPages - 1 + i;
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`rounded px-3 py-1 ${
+                                    currentPage === pageNum
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-gray-200'
+                                }`}
+                            >
+                                {pageNum}
+                            </button>
+                        );
+                    })}
+
+                {/* Next button */}
+                <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((p) => p + 1)}
+                    className="rounded bg-gray-300 px-3 py-1 disabled:opacity-50"
+                >
+                    Next
+                </button>
             </div>
         </AppLayout>
     );
