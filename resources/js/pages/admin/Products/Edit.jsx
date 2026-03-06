@@ -67,10 +67,10 @@ export default function EditProduct({ product, categories = [] }) {
             const valid = await validation.validate(data, { abortEarly: false });
 console.log(valid)
             // If validation passes, submit via Inertia
-            // post(`/admin/products/${product.id}`, {
-            //     forceFormData: true,
-            //     preserveScroll: true,
-            // });
+            post(`/admin/products/${product.id}`, {
+                forceFormData: true,
+                preserveScroll: true,
+            });
         } catch (err) {
             const formattedErrors = {};
 
