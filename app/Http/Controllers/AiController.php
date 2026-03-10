@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Ai\Tools\EcommerseTool;
+use App\Services\GeminiService;
 use Inertia\Inertia;
 
 class AiController extends Controller
@@ -19,9 +20,7 @@ class AiController extends Controller
             'question' => 'required|string'
         ]);
 
-        $tool = new EcommerseTool();
-
-        $answer = $tool->handle($request);
+        $answer = GeminiService::ask($request->question);
 
         return Inertia::render('admin/Ai/AIChat', [
             'answer' => $answer

@@ -14,17 +14,10 @@ import {
 import * as Yup from 'yup';
 import { useState } from 'react';
 
-const breadcrumbs = [
-    {
-        title: 'Edit Product',
-        href: '/admin/products',
-    },
-];
+const breadcrumbs = [{ title: 'Edit Product', href: '/admin/products' }];
 
 export default function EditProduct({ product, categories = [] }) {
-
-
-    const validation =new Yup.ObjectSchema({
+    const validation = Yup.object().shape({
         name: Yup.string().required('Name is Required'),
         price: Yup.number()
             .typeError('Must Be number')
@@ -32,12 +25,9 @@ export default function EditProduct({ product, categories = [] }) {
             .max(1000000, 'Max value is 10 lakh')
             .positive('Cant less or be 0 Negative')
             .required('Cant empty'),
-
         description: Yup.string(),
         parent_id: Yup.string().nullable(),
-
         images: Yup.mixed(),
-        default_image: Yup.mixed(),
         quantity: Yup.number()
             .typeError('Must Be number')
             .min(1, 'Must be greater than 0')
@@ -48,7 +38,6 @@ export default function EditProduct({ product, categories = [] }) {
 
     const [yupErrors, setYupErrors] = useState({});
 
-    // console.log(product)
     const { data, setData, post, processing, errors } = useForm({
         name: product.name || '',
         price: product.price || '',
@@ -56,24 +45,44 @@ export default function EditProduct({ product, categories = [] }) {
         parent_id: product.parent_id || '',
         images: [],
         quantity: product.quantity,
-        default_image: null,
         _method: 'put',
     });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
-            const valid = await validation.validate(data, { abortEarly: false });
-console.log(valid)
-            // If validation passes, submit via Inertia
+            await validation.validate(data, { abortEarly: false });
+
+            // Build FormData
+            const formData = new FormData();
+
+            // Always send regular fields
+            formData.append('name', data.name);
+            formData.append('price', data.price);
+            formData.append('description', data.description);
+            formData.append('quantity', data.quantity);
+            formData.append('parent_id', data.parent_id || '');
+            formData.append('_method', 'put');
+
+            // Only send default_image if user selected a new one
+            if (data.default_image instanceof File) {
+                formData.append('default_image', data.default_image);
+            }
+
+            // Multiple gallery images
+            if (Array.isArray(data.images)) {
+                data.images.forEach((file) =>
+                    formData.append('images[]', file),
+                );
+            }
+
             post(`/admin/products/${product.id}`, {
+                data: formData,
                 forceFormData: true,
                 preserveScroll: true,
             });
         } catch (err) {
             const formattedErrors = {};
-
             if (err.inner && err.inner.length > 0) {
                 err.inner.forEach((error) => {
                     if (error.path) formattedErrors[error.path] = error.message;
@@ -81,7 +90,6 @@ console.log(valid)
             } else if (err.path) {
                 formattedErrors[err.path] = err.message;
             }
-console.log(formattedErrors);
             setYupErrors(formattedErrors);
         }
     };
@@ -89,30 +97,33 @@ console.log(formattedErrors);
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Product" />
-
             <div className="mx-auto max-w-3xl p-6">
                 <div className="space-y-6 rounded-xl border border-gray-800 bg-gray-900 p-6 shadow">
                     <h1 className="text-2xl font-semibold text-white">
                         Edit Product
                     </h1>
 
-                    {/* Current Default Image */}
-                    {product.default_image_url && (
-                        <div className="max-w-xs">
-                            <Label className="mb-1 block text-gray-300">
-                                Current Default Image
-                            </Label>
-                            <div className="aspect-square overflow-hidden rounded border border-gray-700">
-                                <img
-                                    src={product.default_image_url}
-                                    className="h-full w-full object-cover"
-                                    alt="Default"
-                                />
-                            </div>
+                    {/* Default Image */}
+                    <div className="max-w-xs">
+                        <Label className="mb-1 block text-gray-300">
+                            Default Image
+                        </Label>
+                        <div className="mt-2 max-w-xs">
+                            <img
+                                src={
+                                    data.default_image instanceof File
+                                        ? URL.createObjectURL(
+                                              data.default_image,
+                                          )
+                                        : product.default_image_url
+                                }
+                                className="h-32 w-32 rounded object-cover"
+                                alt="Preview"
+                            />
                         </div>
-                    )}
+                    </div>
 
-                    {/* Existing Gallery Images */}
+                    {/* Existing Gallery */}
                     {product.images?.length > 0 && (
                         <Carousel className="max-w-xs">
                             <CarouselContent>
@@ -128,7 +139,6 @@ console.log(formattedErrors);
                                     </CarouselItem>
                                 ))}
                             </CarouselContent>
-
                             {product.images.length > 1 && (
                                 <>
                                     <CarouselPrevious />
@@ -139,7 +149,6 @@ console.log(formattedErrors);
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                        {/* Name */}
                         <div>
                             <Label className="text-gray-300">Name</Label>
                             <Input
@@ -156,7 +165,6 @@ console.log(formattedErrors);
                             )}
                         </div>
 
-                        {/* Price */}
                         <div>
                             <Label className="text-gray-300">Price</Label>
                             <Input
@@ -173,7 +181,7 @@ console.log(formattedErrors);
                                 </p>
                             )}
                         </div>
-                        {/* quantity */}
+
                         <div>
                             <Label className="text-gray-300">Quantity</Label>
                             <Input
@@ -191,7 +199,6 @@ console.log(formattedErrors);
                             )}
                         </div>
 
-                        {/* Description */}
                         <div>
                             <Label className="text-gray-300">Description</Label>
                             <Textarea
@@ -208,7 +215,6 @@ console.log(formattedErrors);
                             )}
                         </div>
 
-                        {/* Category */}
                         <div>
                             <Label className="text-gray-300">Category</Label>
                             <select
@@ -227,7 +233,6 @@ console.log(formattedErrors);
                             </select>
                         </div>
 
-                        {/* Change Default Image */}
                         <div>
                             <Label className="text-gray-300">
                                 Change Default Image
@@ -240,31 +245,11 @@ console.log(formattedErrors);
                                     setData('default_image', e.target.files[0])
                                 }
                             />
-                            {(errors.default_image || yupErrors.default_image) && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {yupErrors.default_image || errors.default_image}
-                                </p>
-                            )}
-
-                            {/* Preview */}
-                            {data.default_image && (
-                                <div className="mt-2 max-w-xs">
-                                    <img
-                                        src={URL.createObjectURL(
-                                            data.default_image,
-                                        )}
-                                        className="h-32 w-32 rounded object-cover"
-                                        alt="Preview"
-                                    />
-                                </div>
-                            )}
-                           
                         </div>
 
-                        {/* Replace Gallery Images */}
                         <div>
                             <Label className="text-gray-300">
-                                Replace Images
+                                Replace Gallery Images
                             </Label>
                             <Input
                                 type="file"
@@ -279,13 +264,7 @@ console.log(formattedErrors);
                                 }
                             />
                         </div>
-                        {(errors.images || yupErrors.images) && (
-                            <p className="mt-1 text-sm text-red-500">
-                                {yupErrors.images || errors.images}
-                            </p>
-                        )}
 
-                        {/* Submit */}
                         <Button
                             disabled={processing}
                             className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
