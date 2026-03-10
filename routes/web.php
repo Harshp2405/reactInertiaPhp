@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\AdminDashboard;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\AiController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -98,6 +98,10 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
 
     Route::get('admin/reports', [ReportController::class, 'index'])->name('report.index');
     Route::post('admin/reports/{report}/resolve', [ReportController::class, 'resolve'])->name('report.resolve');
+
+
+    Route::post('admin/ai/ask', [AiController::class, 'ask']);
+    Route::get('admin/ai', [AiController::class, 'index'])->name('ai.index');
 }) ;
 
 

@@ -13,8 +13,8 @@ createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) =>
         resolvePageComponent(
-            `./pages/${name}.{tsx,jsx}`,
-            import.meta.glob('./pages/**/*.{tsx,jsx}'),
+            `./pages/${name}.tsx`,
+            import.meta.glob('./pages/**/*.tsx'),
         )
         .catch(() =>
             resolvePageComponent(

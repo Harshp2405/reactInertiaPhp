@@ -105,6 +105,11 @@ const adminNavItems: NavItem[] = [
         href: '/admin/reports',
         icon: ReplyIcon,
     },
+    {
+        title: 'Ai',
+        href: '/admin/ai',
+        icon: ReplyIcon,
+    },
 ];
 const orderNavItems: NavItem[] = [
     {
