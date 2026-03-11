@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Ai\Tools\EcommerseTool;
 use App\Services\GeminiService;
 use Inertia\Inertia;
 
