@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Ai\Router\AiActionRouter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -22,27 +23,47 @@ class GeminiService
 
         order_items(id, quantity, price, total)
 
-        reports(id)
+        reports(id , status , type)
         ";
 
         $prompt = "
-        You are an AI that converts ecommerce questions into SQL queries.
+        You are an AI assistant for an ecommerce admin panel.
+
+        Your job is to convert admin questions into JSON actions.
+
+        Available actions:
+        create_product
+        update_product
+        delete_product
+        update_order
+        edit_order
+        analytics_query
+        build_chart
+        generate SELECT, INSERT, UPDATE, DELETE queries
+
 
         Database schema:
         {$schema}
 
         Rules:
-        - Only generate SELECT queries
-        - Never generate DELETE, UPDATE, DROP, ALTER, TRUNCATE
-        - Use correct table names
-        - Return ONLY the SQL query
+        - Never generate  TRUNCATE
+        - Use correct table names from schemas
+        - Return ONLY the JSON query
         - No explanations
 
-        Example:
+        - For create_product ALWAYS include:
+        name
+        price
+        quantity
 
-        Question: products with low stock
-        SQL:
-        SELECT name, quantity FROM products WHERE quantity < 5;
+        Required JSON format:
+            {
+                \"action\": \"<action_name>\",
+                    \"name\": \"...\",
+                    \"price\": ...,
+                    \"quantity\": ...
+                    // other relevant fields
+            }
 
         Question:
         {$question}
@@ -67,31 +88,67 @@ class GeminiService
             return "AI Error: " . $response->body();
         }
 
-        $sql = trim($response->json()['candidates'][0]['content']['parts'][0]['text']);
+        // $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
-        // remove markdown formatting
-        $sql = str_replace(['```sql', '```'], '', $sql);
-        $sql = trim($sql);
+        // // Remove markdown formatting
+        // $text = str_replace(['```json', '```sql', '```'], '', $text);
+        // $text = trim($text);
 
-        // Security protection
-        $blocked = ['delete', 'drop', 'truncate', 'update', 'alter'];
+        // // Try to decode JSON action
+        // $data = json_decode($text, true);
 
-        foreach ($blocked as $word) {
-            if (str_contains(strtolower($sql), $word)) {
-                return "Unsafe SQL detected.";
-            }
+        // if (json_last_error() === JSON_ERROR_NONE && isset($data['action'])) {
+        //     // Route to proper action
+        //     return AiActionRouter::run($data);
+        // }
+
+        // // Otherwise treat as SQL
+        // $sql = $text;
+
+        // // Security: block TRUNCATE only
+        // if (str_contains(strtolower($sql), 'truncate')) {
+        //     return [
+        //         'success' => false,
+        //         'error' => 'Unsafe SQL detected: TRUNCATE is blocked.',
+        //     ];
+        // }
+
+        // try {
+        //     $sqlLower = strtolower(trim($sql));
+        //     if (str_starts_with($sqlLower, 'select')) {
+        //         $result = DB::select($sql);
+        //     } else {
+        //         // Use statement() for INSERT, UPDATE, DELETE
+        //         DB::statement($sql);
+        //         $result = ['success' => true, 'message' => "Query executed successfully {$sql}"];
+        //     }
+        // } catch (\Exception $e) {
+        //     return [
+        //         'success' => false,
+        //         'error' => $e->getMessage(),
+        //     ];
+        // }
+
+        // return json_encode($result, JSON_PRETTY_PRINT);
+
+
+
+        $text = $response->json()['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        $text = str_replace(['```json','```'], '', trim($text));
+
+        // Decode JSON from AI
+        $data = json_decode($text, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return [
+                'success' => false,
+                'error' => 'Invalid JSON returned from AI',
+                'raw' => $text
+            ];
         }
 
-        if (!str_starts_with(strtolower($sql), 'select')) {
-            return "Invalid SQL generated.";
-        }
+        // Route to proper action
+        return AiActionRouter::run($data);
 
-        try {
-            $result = DB::select($sql);
-        } catch (\Exception $e) {
-            return "Query execution error.";
-        }
-
-        return json_encode($result, JSON_PRETTY_PRINT);
     }
 }

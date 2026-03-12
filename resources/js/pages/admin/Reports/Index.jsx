@@ -47,7 +47,7 @@ export default function ReportsIndex() {
 
 
         useEffect(() => {
-            console.log('Echo:', window.Echo);
+            // console.log('Echo:', window.Echo);
 
             window.Echo.channel('reports').listen('.report.created', (e) => {
                 console.log('EVENT RECEIVED:', e);
