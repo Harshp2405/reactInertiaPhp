@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "*",
+        "guzzlehttp/guzzle": "*",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/ai": "*",
         "laravel/fortify": "^1.30",
