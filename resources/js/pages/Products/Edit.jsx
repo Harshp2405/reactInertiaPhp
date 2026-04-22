@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,17 +28,18 @@ export default function EditProduct({ product, categories = [] }) {
         images: [],
         default_image: null,
         _method: 'put',
+        forceFormData: true,
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        console.log(data , "Edit Data");
         post(`/Products/${product.id}`, {
             forceFormData: true,
             preserveScroll: true,
         });
     };
-
+    console.log(usePage().props.errors , "All");
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Edit Product" />

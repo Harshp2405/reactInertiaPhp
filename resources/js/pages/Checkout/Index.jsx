@@ -18,7 +18,7 @@ export default function Checkout({ cart }) {
 
     const submit = (e) => {
         e.preventDefault();
-        console.log(data)
+        // console.log(data)
         post('/Checkout', {
             onSuccess: () => toast.success('Order placed successfully'),
             onError: () => toast.error('Order failed'),

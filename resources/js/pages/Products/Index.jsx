@@ -188,10 +188,12 @@ export default function Index({ Data, User, categories }) {
                                             </p>
                                             <div className="disabled text-xl font-bold opacity-50">
                                                 <SortableProductCard
+                                                    
                                                     key={dt.id}
                                                     dt={dt}
-                                                    processing={processing}
-                                                    onDelete={handleDelete}
+                                                    disable={true}
+                                                    // processing={processing}
+                                                    // onDelete={handleDelete}
                                                     User={User}
                                                 />
                                             </div>

@@ -11,6 +11,7 @@ use Illuminate\Container\Attributes\DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -76,7 +77,7 @@ class ProductController extends Controller
         $query = Product::query()->with('images', 'parent', 'children')->where('active', true);
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like' ,  '%' . $request->search . '%');
         }
 
         if ($request->category) {
@@ -114,6 +115,15 @@ class ProductController extends Controller
             ->get();
 
         return response()->json($categories);
+    }
+    public function myProducts()
+    {
+        $products = Product::with('images', 'parent', 'children')->where('active', true)->where('created_by', $this->userId)->get();
+
+        return Inertia::render('Myproducts/Index', [
+            'Data' => $products,
+            'User' => auth()->user(),
+        ]);
     }
 
     /**
@@ -233,71 +243,90 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, Product $product)
     {
-        // dd($request);
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'description' => 'nullable|string',
-            'parent_id'   => 'nullable|exists:products,id',
-            'default_image' => 'nullable|image|max:2048',
-            'images' => 'nullable|array|max:5',
-            'images.*' => 'image|max:2048',
-
-            'quantity' => 'required|integer|min:0',
-        ]);
-        $oldParentId = $product->parent_id;
-
-        $product->update($data);
-
-        if ($oldParentId && $oldParentId !== $product->parent_id) {
-            $hasChildren = Product::where('parent_id', $oldParentId)->exists();
-            Product::where('id', $oldParentId)
-                ->update(['is_parent' => $hasChildren]);
-        }
-
-        // New parent: set as parent
-        if ($product->parent_id) {
-            Product::where('id', $product->parent_id)
-                ->update(['is_parent' => true]);
-        }
-
-//Defaul Image
-        if ($request->hasFile('default_image')) {
-
-            // delete old default image if exists
-            if ($product->default_image) {
-                Storage::disk('public')->delete($product->default_image);
-            }
-
-            $path = $request->file('default_image')
-                ->store("products/{$product->id}/thumbnail/", 'public');
-
-            $product->update([
-                'default_image' => $path,
+        try {
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'price' => 'required|numeric',
+                'description' => 'nullable|string',
+                'parent_id' => 'nullable|exists:products,id',
+                'default_image' => 'nullable|image|max:2048',
+                'images' => 'nullable|array|max:5',
+                'images.*' => 'image|max:2048',
+                'quantity' => 'required|integer|min:0',
             ]);
-        }
-//Array of multiple image
-        if ($request->hasFile('images')) {
 
-            foreach ($product->images as $img) {
-                Storage::disk('public')->delete($img->image);
-                $img->delete();
+            $oldParentId = $product->parent_id;
+
+            // ❗ Remove file fields before update
+            $fileData = $data;
+            unset($fileData['default_image'], $fileData['images']);
+
+            $product->update($fileData);
+
+            // Handle parent logic
+            if ($oldParentId && $oldParentId !== $product->parent_id) {
+                $hasChildren = Product::where('parent_id', $oldParentId)->exists();
+                Product::where('id', $oldParentId)
+                    ->update(['is_parent' => $hasChildren]);
             }
 
-            foreach ($request->file('images') as $img) {
-                $path = $img->store("products/{$product->id}/", 'public');
+            if ($product->parent_id) {
+                Product::where('id', $product->parent_id)
+                    ->update(['is_parent' => true]);
+            }
 
-                $product->images()->create([
-                    'image' => $path,
+            // Default image
+            if ($request->hasFile('default_image')) {
+                if ($product->default_image) {
+                    Storage::disk('public')->delete($product->default_image);
+                }
+
+                $path = $request->file('default_image')
+                    ->store("products/{$product->id}/thumbnail/", 'public');
+
+                $product->update([
+                    'default_image' => $path,
                 ]);
             }
-        }
 
-        return redirect()->route('Products.index')->with('message', 'Edited');
+            // Multiple images
+            if ($request->hasFile('images')) {
+                foreach ($product->images as $img) {
+                    Storage::disk('public')->delete($img->image);
+                    $img->delete();
+                }
+
+                foreach ($request->file('images') as $img) {
+                    $path = $img->store("products/{$product->id}/", 'public');
+
+                    $product->images()->create([
+                        'image' => $path,
+                    ]);
+                }
+            }
+
+
+            return redirect()
+                ->route('Products.index')
+                ->with('message', 'Edited successfully');
+        } catch (\Throwable $e) {
+
+
+            // Log error for debugging
+            Log::error('Product update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors([
+                'error' => `Error updating product:` . $e->getMessage(),
+            ]);
+        }
     }
-    public function changeImage(Request $request, Product $product)
+  public function changeImage(Request $request, Product $product)
     {
         $request->validate([
             'images' => 'nullable|array|max:5',

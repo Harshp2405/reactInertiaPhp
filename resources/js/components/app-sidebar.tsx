@@ -1,7 +1,9 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
+    BoxSelect,
     Folder,
+    Image,
     LayoutGrid,
     ListOrderedIcon,
     ReplyIcon,
@@ -73,6 +75,11 @@ const userNavItem: NavItem[] = [
         href: '/report',
         icon: ReplyIcon,
     },
+    {
+        title: 'My products',
+        href: '/Products/myProducts',
+        icon: BoxSelect,
+    },
 ];
 const adminNavItems: NavItem[] = [
     // {
@@ -109,6 +116,11 @@ const adminNavItems: NavItem[] = [
         title: 'Ai',
         href: '/admin/ai',
         icon: ReplyIcon,
+    },
+    {
+        title: 'AiImage',
+        href: '/admin/generate-image ',
+        icon: Image,
     },
 ];
 const orderNavItems: NavItem[] = [

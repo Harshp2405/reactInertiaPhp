@@ -392,9 +392,9 @@ export default function Index({ Data, User, categories, processing }) {
             <div className="grid grid-cols-4 gap-4">
                 {paginatedItems
                     .filter((item) => item.price !== '0.00')
-                    .map((dt) => (
+                    .map((dt,ind) => (
                         <SortableProductCard
-                            key={dt.id}
+                            key={ind}
                             dt={dt}
                             processing={processing}
                             onDelete={() => {
@@ -410,7 +410,7 @@ export default function Index({ Data, User, categories, processing }) {
                 <button
                     disabled={currentPage === 1}
                     onClick={() => setCurrentPage((p) => p - 1)}
-                    className="rounded bg-gray-300 px-3 py-1 disabled:opacity-50"
+                    className="rounded bg-blue-500 px-3 py-1 disabled:opacity-50"
                 >
                     Prev
                 </button>
@@ -423,7 +423,7 @@ export default function Index({ Data, User, categories, processing }) {
                         className={`rounded px-3 py-1 ${
                             currentPage === i + 1
                                 ? 'bg-blue-500 text-white'
-                                : 'bg-gray-200'
+                                : 'bg-black'
                         }`}
                     >
                         {i + 1}
@@ -446,7 +446,7 @@ export default function Index({ Data, User, categories, processing }) {
                                 className={`rounded px-3 py-1 ${
                                     currentPage === pageNum
                                         ? 'bg-blue-500 text-white'
-                                        : 'bg-gray-200'
+                                        : 'bg-black'
                                 }`}
                             >
                                 {pageNum}
@@ -458,7 +458,7 @@ export default function Index({ Data, User, categories, processing }) {
                 <button
                     disabled={currentPage === totalPages}
                     onClick={() => setCurrentPage((p) => p + 1)}
-                    className="rounded bg-gray-300 px-3 py-1 disabled:opacity-50"
+                    className="rounded bg-blue-500 px-3 py-1 disabled:opacity-50"
                 >
                     Next
                 </button>

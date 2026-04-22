@@ -12,7 +12,7 @@ import {
 } from '../../components/ui/card.tsx';
 import toast from 'react-hot-toast';
 
-export default function SortableProductCard({ dt, processing, onDelete ,User }) {
+export default function SortableProductCard({ dt, processing, onDelete ,User , disable=false}) {
 
     // console.log(User, '---------------------User----------------');
     // console.log(dt, '---------------------dt----------------');
@@ -182,14 +182,24 @@ export default function SortableProductCard({ dt, processing, onDelete ,User }) 
                     Show
                 </Link>
                 {/* Add to cart */}
-                <Button
-                    type="submit"
-                    disabled={processing}
-                    onClick={handleSubmit}
-                    className="bg-green-600 hover:bg-green-700"
-                >
-                    Add To Cart
-                </Button>
+                {disable ? (
+                    <Button
+                        type="submit"
+                        disabled={processing}
+                        className="disabled:bg-gray-600"
+                    >
+                        Add To Cart
+                    </Button>
+                ) : (
+                    <Button
+                        type="submit"
+                        disabled={processing}
+                        onClick={handleSubmit}
+                        className="bg-green-600 hover:bg-green-700"
+                    >
+                        Add To Cart
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );

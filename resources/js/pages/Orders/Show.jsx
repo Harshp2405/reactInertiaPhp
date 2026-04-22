@@ -25,7 +25,7 @@ export default function Show({ order }) {
                     onClick={() =>
                         window.open(`/orders/${order.id}/invoice`, '_blank')
                     }
-                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-500"
+                    className="rounded-lg bg-blue-600 px-4 py-2 mx-4 text-sm text-white hover:bg-blue-500"
                 >
                     Download Invoice (PDF)
                 </button>

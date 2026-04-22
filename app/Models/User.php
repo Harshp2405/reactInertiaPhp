@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use App\Models\Order;
 use App\Models\Cart;
+use App\Models\Product;
 
 class User extends Authenticatable
 {
@@ -82,5 +83,10 @@ class User extends Authenticatable
     public function canView(): bool
     {
         return $this->permissions['can_view'] ?? true;
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'created_by');
     }
 }

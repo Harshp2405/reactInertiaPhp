@@ -56,7 +56,8 @@ Route::middleware(['auth', 'verified' , 'role:1'])->group(function () {
 
         Route::get('user/dashboard', [UserDashboard::class, 'dashBoardData'])->name('dashBoardData');
 
-        Route::get('Products/categeory', [ProductController::class , "getCategeory"])->name('getCategeory');
+        Route::get('Products/categeory', [ProductController::class , "getCategory"])->name('getCategeory');
+        Route::get('Products/myProducts', [ProductController::class , "myProducts"])->name('myProducts');
         Route::resource('Products', ProductController::class)->parameters(['Products' => 'product']);
         Route::resource('todo', TodolistController::class);
 
@@ -102,6 +103,9 @@ Route::middleware(['auth', 'verified', 'role:0'])->name('admin.')->group(functio
 
     Route::post('admin/ai/ask', [AiController::class, 'ask']);
     Route::get('admin/ai', [AiController::class, 'index'])->name('ai.index');
+
+    Route::post('admin/generate-image', [AiController::class, 'generate'])->name('generate');
+    Route::get('admin/generate-image', [AiController::class, 'generateui'])->name('generateui');
 }) ;
 
 

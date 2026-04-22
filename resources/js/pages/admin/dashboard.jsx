@@ -25,8 +25,7 @@ import {
     Boxes,
     Box,
     CaseLower,
-    WifiLow,
-    WifiLowIcon,
+    BatteryLowIcon,
 } from 'lucide-react';
 import Chart from './Charts/Chart';
 const breadcrumbs = [
@@ -75,9 +74,9 @@ export default function Dashboard({stats}) {
             color: 'bg-red-700',
         },
         {
-            title: 'lowStockProducts',
+            title: 'Low Stock Products',
             value: stats.lowStockProducts.length,
-            icon: WifiLowIcon,
+            icon: BatteryLowIcon,
             color: 'bg-orange-800',
         },
     ];
@@ -149,7 +148,7 @@ export default function Dashboard({stats}) {
                                                 Stock: {product.quantity}
                                             </p>
                                             {/* Optional: Add a button to edit product */}
-                                            {/* <Button size="sm" variant="outline">Edit</Button> */}
+                                            
                                         </div>
                                     </div>
                                 ))}
